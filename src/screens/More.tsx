@@ -18,6 +18,14 @@ export function More() {
   const activity = state.activity.slice(0, 12);
   return (
     <Page title="More" sub="Settings and demo controls">
+      <Section title="Workspaces · Jeff & Scott">
+        <List label="Functional demo tools">
+          <Row title="Decision desk" meta="Owner decisions, Scott's blockers and closing watch" href="/studio?tab=decisions" />
+          <Row title="Quote Studio" meta="Editable extras, running totals and CSV export" href="/studio?tab=quote" />
+          <Row title="Closing desk" meta="Sample handoff checklist and current tasks" href="/studio?tab=closeout" />
+          <Row title="Site issues" meta="Log, assign, resolve and reopen demo blockers" href="/studio?tab=issues" />
+        </List>
+      </Section>
       <Section title="View as">
         <List label="Roles">
           {ROLES.map((r) => (
@@ -92,7 +100,7 @@ export function More() {
           </div>
         </List>
       </Section>
-      <p className={s.about}>Marchand HQ · V6 preview</p>
+      <p className={s.about}>Marchand HQ · V6 Sprint 1 · sample-data demo</p>
 
       <Sheet open={confirm} title="Reset the demo?" onClose={() => setConfirm(false)}>
         <p className={s.detailText}>Clears every change made in this session and starts the story again as the designer.</p>
