@@ -4,8 +4,8 @@ function signingSecret(): string | null {
   const key = process.env.MHQ_LAB_SESSION_KEY;
   return key && /^[0-9a-f]{64}$/i.test(key) ? key : null;
 }
-function hexToBytes(s: string): Uint8Array {
-  const bytes = new Uint8Array(s.length / 2);
+function hexToBytes(s: string): Uint8Array<ArrayBuffer> {
+  const bytes = new Uint8Array(new ArrayBuffer(s.length / 2));
   for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(s.slice(i * 2, i * 2 + 2), 16);
   return bytes;
 }
