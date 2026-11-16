@@ -23,7 +23,7 @@ const QUOTE_KEY = 'marchand-sprint1-quotes-v1';
 const ISSUE_KEY = 'marchand-sprint1-issues-v1';
 const CHECK_KEY = 'marchand-sprint1-closeout-v1';
 const uid = () => Math.random().toString(36).slice(2,10);
-const csvCell = (v: string | number) => {const raw=String(v);const safe=/^[\\s]*[=+@-]/.test(raw)&&typeof v==='string' ? "'"+raw : raw; return '"'+safe.replaceAll('"','""')+'"';};
+const csvCell = (v: string | number) => {const raw=String(v);const safe=/^[\s\uFEFF]*[=+@-]/u.test(raw)&&typeof v==='string' ? "'"+raw : raw; return '"'+safe.replaceAll('"','""')+'"';};
 const download = (filename:string,content:string,type:string) => {
   const url=URL.createObjectURL(new Blob([content],{type}));
   const a=document.createElement('a'); a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
