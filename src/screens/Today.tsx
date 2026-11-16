@@ -11,6 +11,7 @@ import { roleById } from '@/lib/people';
 import { daysBetween, lotLabel, relDue } from '@/lib/format';
 import type { Task } from '@/lib/types';
 import { TaskDetail } from './TaskDetail';
+import { Intelligence } from '@/components/Intelligence';
 
 function useWide() {
   const [wide, setWide] = useState(false);
@@ -71,6 +72,7 @@ export function Today() {
 
   return (
     <Page title="Today" sub={`${r.person} · ${r.title}`}>
+      <Intelligence />
       <div className={s.split}>
         <div>
           {empty ? (
