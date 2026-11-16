@@ -57,7 +57,7 @@ export function Intelligence() {
   const muted: React.CSSProperties = { fontSize: 12, color: 'var(--text-2)' };
   return <section style={panel} aria-label="Marchand intelligence">
     <button type="button" onClick={() => setExpanded(v => !v)} aria-expanded={expanded} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', textAlign:'left', background:'none', border:0, color:'var(--text)', padding:0, cursor:'pointer' }}>
-      <span style={{ display:'flex', alignItems:'center', gap:9, fontWeight:600 }}><Sparkles size={19} style={{ color:'var(--accent-text)' }} /> Marchand Intelligence <span style={{...muted, fontWeight:400}}>Demo</span></span>
+      <span style={{ display:'flex', alignItems:'center', gap:9, fontWeight:600 }}><Sparkles size={19} style={{ color:'var(--accent-text)' }} /> Marchand Brief <span style={{...muted, fontWeight:400}}>Demo</span></span>
       {expanded ? <ChevronUp size={17}/> : <ChevronDown size={17}/>}
     </button>
     {expanded && <>
