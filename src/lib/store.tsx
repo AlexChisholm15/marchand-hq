@@ -29,6 +29,7 @@ type Store = {
   events: DemoEvent[];
   role: RoleId;
   theme: Theme;
+  palette: Palette;
   whatIf: Record<string, number>;
   guide: boolean;
   welcomed: boolean;
