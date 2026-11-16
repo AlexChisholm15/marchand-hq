@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import s from './screens.module.css';
 import { Page } from '@/components/Shell';
+import { DemoInsightTag } from '@/components/DemoInsightTag';
 import { Empty, List, Pill, Row, Section, Sheet, StageList, Tabs, Timeline } from '@/components/ui';
 import { useStore } from '@/lib/store';
 import { approvedExtraCost, approvedExtras, finalPrice } from '@/lib/engine';
@@ -53,6 +54,7 @@ export function HomeDetail({ id }: { id: string }) {
 
   return (
     <Page title={title} sub={sub} back={owner ? undefined : '/homes'}>
+      <div style={{display:'flex',alignItems:'center',gap:8,margin:'0 0 12px'}}><DemoInsightTag topic="home" /></div>
       <div className={s.hero}>
         <div className={s.heroRow}>
           <div>
