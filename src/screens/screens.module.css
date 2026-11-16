@@ -106,3 +106,11 @@
 .activity:first-child { border-top: 0; }
 .activity span { display: block; font-size: var(--fs-xs); color: var(--text-2); margin-top: 2px; }
 .about { margin-top: var(--s6); font-size: var(--fs-xs); color: var(--text-3); text-align: center; }
+
+
+/* Compact colourway controls, complementary to the persistent top-bar picker. */
+.paletteGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.paletteButton,.paletteActive{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:40px;padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-radius:9px;font-size:12px;text-align:left;white-space:normal}
+.paletteActive{border-color:var(--accent);background:var(--accent-weak);font-weight:600}
+.paletteSwatch{width:14px;height:14px;flex-shrink:0;border-radius:50%;border:1px solid #9993}
+@media(max-width:600px){.paletteGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
