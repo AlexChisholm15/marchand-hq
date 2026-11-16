@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useId, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ArrowLeft, Check, ChevronDown, Ellipsis, FileDiff, House, ListChecks, Search, Wallet } from 'lucide-react';
@@ -142,10 +143,7 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
           {sub && <p className={s.topSub}>{sub}</p>}
         </div>
         <div className={s.topActions}>
-          <label className={s.palettePicker} title="Colourway">
-            <span className={s.paletteDot} aria-hidden />
-            <span className="sr-only">Colourway</span>
-            <select aria-label="Colourway" value={palette} onChange={(e) => setPalette(e.target.value as typeof palette)}>
+          <ColourwayPicker palette={palette} setPalette={setPalette}>
               <option value="cobalt">Cobalt</option>
               <option value="copper">Copper</option>
               <option value="forest">Forest</option>
@@ -158,8 +156,7 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
               <option value="blackgold">Black &amp; Gold</option>
               <option value="coastal">Coastal</option>
               <option value="city">City</option>
-            </select>
-          </label>
+          </ColourwayPicker>
           <IconButton label="Search homes and tasks" onClick={openSearch}>
             <Search size={20} />
           </IconButton>
@@ -180,6 +177,74 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
       {children}
     </>
   );
+}
+
+// Keep the original option values and store action as the single switching path.
+function ColourwayPicker({ palette, setPalette, children }: {
+  palette: ReturnType<typeof useStore>['palette'];
+  setPalette: ReturnType<typeof useStore>['setPalette'];
+  children: ReactNode;
+}) {
+  const trigger = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0, maxHeight: 400 });
+  const [label, setLabel] = useState('');
+  const options = useRef<HTMLSelectElement>(null);
+  useEffect(() => { setLabel(options.current?.selectedOptions[0]?.text ?? palette); }, [palette]);
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const rect = trigger.current!.getBoundingClientRect();
+      const width = Math.min(208, window.innerWidth - 24);
+      setPosition({ top: rect.bottom + 8, left: Math.max(12, Math.min(rect.right - width, window.innerWidth - width - 12)), maxHeight: Math.max(80, window.innerHeight - rect.bottom - 20) });
+    };
+    place();
+    menu.current?.querySelector<HTMLButtonElement>('[aria-selected="true"]')?.focus();
+    const outside = (e: PointerEvent) => {
+      if (!menu.current?.contains(e.target as Node) && !trigger.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', outside);
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    return () => {
+      document.removeEventListener('pointerdown', outside);
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+    };
+  }, [open]);
+  const close = () => { setOpen(false); trigger.current?.focus(); };
+  return <>
+    <select hidden aria-hidden ref={options} value={palette} onChange={e => setPalette(e.target.value as typeof palette)}>{children}</select>
+    <button ref={trigger} type="button" className={s.palettePicker} aria-label={`Colourway: ${label || palette}`} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? id : undefined}
+      onClick={() => setOpen(!open)} onKeyDown={e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); setOpen(true); } }}>
+      <span className={s.paletteDot} aria-hidden /><span className={s.paletteLabel}>{label || palette}</span><ChevronDown size={14} aria-hidden />
+    </button>
+    {open && createPortal(<div ref={menu} id={id} role="listbox" aria-label="Colourway" className={s.paletteMenu} style={position}
+      onBlur={e => { if (e.relatedTarget !== trigger.current && !e.currentTarget.contains(e.relatedTarget)) setOpen(false); }}
+      onKeyDown={e => {
+        const items = Array.from(menu.current!.querySelectorAll<HTMLButtonElement>('[role="option"]'));
+        const index = items.indexOf(document.activeElement as HTMLButtonElement);
+        let next = index;
+        if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+        if (e.key === 'Tab') { close(); return; }
+        if (e.key === 'ArrowDown') next = (index + 1) % items.length;
+        else if (e.key === 'ArrowUp') next = (index - 1 + items.length) % items.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = items.length - 1;
+        else if (e.key.length === 1 && /\S/.test(e.key)) {
+          const match = items.findIndex((item, i) => i > index && item.textContent?.toLowerCase().startsWith(e.key.toLowerCase()));
+          next = match >= 0 ? match : items.findIndex(item => item.textContent?.toLowerCase().startsWith(e.key.toLowerCase()));
+        } else return;
+        if (next >= 0) { e.preventDefault(); items[next].focus(); }
+      }}>
+      {Array.from(options.current?.options ?? []).map(option => <button type="button" key={option.value} role="option" aria-selected={option.value === palette} tabIndex={-1} className={s.paletteOption}
+        onClick={() => { setPalette(option.value as typeof palette); close(); }}>
+        <span>{option.text}</span><Check size={14} aria-hidden style={{ visibility: option.value === palette ? 'visible' : 'hidden' }} />
+      </button>)}
+    </div>, document.body)}
+  </>;
 }
 
 function RoleSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
