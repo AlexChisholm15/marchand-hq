@@ -6,8 +6,8 @@ import { derive, storyProgress } from './engine';
 import { localToday } from './format';
 
 type Theme = 'system' | 'light' | 'dark';
-export type Palette = 'cobalt' | 'copper' | 'forest' | 'plum' | 'slate' | 'rose';
-const PALETTES: Palette[] = ['cobalt','copper','forest','plum','slate','rose'];
+export type Palette = 'cobalt' | 'copper' | 'forest' | 'plum' | 'slate' | 'rose' | 'marchand63' | 'panther' | 'architect' | 'blackgold' | 'coastal' | 'city';
+const PALETTES: Palette[] = ['cobalt','copper','forest','plum','slate','rose','marchand63','panther','architect','blackgold','coastal','city'];
 
 type Saved = {
   v: 6;
