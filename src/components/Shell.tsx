@@ -7,6 +7,7 @@ import { ArrowLeft, Check, ChevronDown, Ellipsis, FileDiff, House, ListChecks, S
 import s from './shell.module.css';
 import { Button, IconButton, List, Row, SearchBox, Sheet, Skeleton } from './ui';
 import { Logo } from './Logo';
+import { FloatingAsk } from './FloatingAsk';
 import { useStore } from '@/lib/store';
 import { navFor, roleById, ROLES, canSeeMoney, DEMO_HOME_ID, type NavId } from '@/lib/people';
 import { homesFor, STORY } from '@/lib/engine';
@@ -90,6 +91,7 @@ export function Shell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+        {ready && <FloatingAsk />}
         <SearchSheet open={search} onClose={() => setSearch(false)} />
         <RoleSheet open={roles} onClose={() => setRoles(false)} />
         {ready && !welcomed && <Welcome />}
