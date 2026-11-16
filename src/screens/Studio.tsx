@@ -7,6 +7,7 @@ import { Page } from '@/components/Shell';
 import { finalPrice, homesFor } from '@/lib/engine';
 import { money, fmtDate } from '@/lib/format';
 import { STAGES } from '@/lib/seed';
+import { summarizeDraft } from '@/lib/quoteDraft';
 import type { Home, Task } from '@/lib/types';
 import s from './studio.module.css';
 
@@ -21,9 +22,8 @@ const CHECKS = ['Closing date confirmed','Deposit record verified','Change order
 const QUOTE_KEY = 'marchand-sprint1-quotes-v1';
 const ISSUE_KEY = 'marchand-sprint1-issues-v1';
 const CHECK_KEY = 'marchand-sprint1-closeout-v1';
-const nsHst = .14; // Illustrative Nova Scotia HST rate; no tax advice or tax engine.
 const uid = () => Math.random().toString(36).slice(2,10);
-const csvCell = (v: string | number) => '"' + String(v).replaceAll('"','""') + '"';
+const csvCell = (v: string | number) => {const raw=String(v);const safe=/^[\\s]*[=+@-]/.test(raw)&&typeof v==='string' ? "'"+raw : raw; return '"'+safe.replaceAll('"','""')+'"';};
 const download = (filename:string,content:string,type:string) => {
   const url=URL.createObjectURL(new Blob([content],{type}));
   const a=document.createElement('a'); a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
@@ -39,7 +39,6 @@ function demoIssues(homeId:string):Issue[] {
     {id:'demo-inspection',homeId,title:'Confirm inspection window with site lead',priority:'Normal',owner:'Project manager',done:false}
   ];
 }
-const tax = (v:number)=>Math.round(v*nsHst*100)/100;
 
 export function Studio(){
   const {state,role,setRole}=useStore();
@@ -65,9 +64,9 @@ export function Studio(){
     setLoaded(true);
   },[]);
   useEffect(()=>{if(!homeId||!homes.some(h=>h.id===homeId))setHomeId(homes[0]?.id||'');},[homeId,homes]);
-  useEffect(()=>{if(loaded)localStorage.setItem(QUOTE_KEY,JSON.stringify(quotes));},[quotes,loaded]);
-  useEffect(()=>{if(loaded)localStorage.setItem(ISSUE_KEY,JSON.stringify(issues));},[issues,loaded]);
-  useEffect(()=>{if(loaded)localStorage.setItem(CHECK_KEY,JSON.stringify(checks));},[checks,loaded]);
+  useEffect(()=>{if(loaded)try{localStorage.setItem(QUOTE_KEY,JSON.stringify(quotes));}catch{/* private browsing may block storage */}},[quotes,loaded]);
+  useEffect(()=>{if(loaded)try{localStorage.setItem(ISSUE_KEY,JSON.stringify(issues));}catch{/* storage unavailable */}},[issues,loaded]);
+  useEffect(()=>{if(loaded)try{localStorage.setItem(CHECK_KEY,JSON.stringify(checks));}catch{/* storage unavailable */}},[checks,loaded]);
 
   const home=homes.find(h=>h.id===homeId)??homes[0];
   const lines=quotes[home?.id]||[];
@@ -75,10 +74,10 @@ export function Studio(){
   const homeTasks=state.tasks.filter(t=>t.homeId===home?.id && t.status==='open');
   const list=issues.filter(i=>i.homeId===home?.id);
   const checksDone=checks[home?.id]||[];
-  const subtotal=lines.reduce((v,l)=>v+((Number.isFinite(l.qty)&&l.qty>0?l.qty:0)*(Number.isFinite(l.unit)&&l.unit>0?l.unit:0)),0);
-  const validLines=lines.filter(l=>l.label.trim()&&l.qty>0&&Number.isFinite(l.unit)&&l.unit>=0);
-  const total=validLines.reduce((v,l)=>v+l.qty*l.unit,0);
-  const extraWithTax=total+tax(total);
+  const draft=summarizeDraft(lines);
+  const validLines=draft.lines;
+  const total=draft.subtotal;
+  const extraWithTax=draft.total;
   const pending=state.tasks.filter(t=>(t.role==='owner'||t.role==='coo')&&t.status==='open').sort((a,b)=>a.due.localeCompare(b.due));
   const delayed=state.homes.filter(h=>h.behindWeeks>0);
   const pendingChanges=state.changes.filter(c=>c.status==='requested'||c.status==='priced');
@@ -102,7 +101,7 @@ export function Studio(){
       ['Lot',home.lot,'Plan',home.plan],
       ['Description','Quantity','Unit price before HST','Line total before HST'],
       ...validLines.map(l=>[l.label,l.qty,l.unit,l.qty*l.unit]),
-      ['Subtotal','','',total],['Illustrative HST 14%','','',tax(total)],
+      ['Subtotal','','',total],['Illustrative HST 14%','','',draft.hst],
       ['Draft extras including HST','','',extraWithTax],
       ['Existing approved home price incl. HST','','',finalPrice(home,state.changes)],
       ['Projected total if draft approved','','',finalPrice(home,state.changes)+extraWithTax],
@@ -193,7 +192,7 @@ export function Studio(){
           <div><span>Approved extras incl. HST</span><strong>{money(finalPrice(home,state.changes)-home.contractPrice)}</strong></div>
           <div><span>Existing approved price</span><strong>{money(finalPrice(home,state.changes))}</strong></div>
           <div><span>New draft subtotal</span><strong>{money(total)}</strong></div>
-          <div><span>Illustrative NS HST (14%)</span><strong>{money(tax(total))}</strong></div>
+          <div><span>Illustrative NS HST (14%)</span><strong>{money(draft.hst)}</strong></div>
           <div className={s.highlight}><span>Draft extras incl. HST</span><strong>{money(extraWithTax)}</strong></div>
           <div className={s.highlight}><span>Projected if approved</span><strong>{money(finalPrice(home,state.changes)+extraWithTax)}</strong></div>
         </div>
