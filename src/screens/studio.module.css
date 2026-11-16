@@ -42,3 +42,55 @@
 .footer{margin:22px 0;color:var(--text-3);font-size:10px;line-height:1.5}
 @media(min-width:850px){.grid{grid-template-columns:1.12fr .88fr}}
 @media(max-width:580px){.intro{align-items:flex-start;flex-direction:column}.tabs button{padding:10px 12px}.card{padding:13px}.metrics strong{font-size:21px}.editLine{grid-template-columns:minmax(0,1fr) 60px 97px 25px}.editLine input{padding:6px;font-size:11px}.line,.issueRow{gap:6px}.line .priority,.line .date{min-width:42px}.issueRow button{font-size:10px;padding:5px}}
+
+
+/* Sprint 2: product-level polish, without changing the existing functional controls. */
+.intro{position:relative;isolation:isolate;overflow:hidden;min-height:178px;display:flex;align-items:center;padding:26px 28px;border-radius:22px;border:1px solid rgba(255,255,255,.14);color:#f3f5f7;background:radial-gradient(ellipse 72% 110% at 100% -5%,color-mix(in srgb,var(--accent) 29%,transparent),transparent),linear-gradient(118deg,#101319,#1a212b);box-shadow:0 18px 55px rgba(0,0,0,.17)}
+.intro::before{content:"";pointer-events:none;position:absolute;right:-4%;bottom:-45%;height:140%;width:52%;background:repeating-linear-gradient(117deg,transparent,transparent 22px,rgba(255,255,255,.045) 23px,transparent 24px);transform:skewX(-8deg);z-index:-1}
+.intro strong{font-size:clamp(21px,2.6vw,31px);font-weight:750;letter-spacing:-.045em;max-width:480px;display:block;line-height:1.18}
+.intro p{max-width:455px;margin-top:10px;color:#acb7c4;line-height:1.55;font-size:12px}
+.intro .lens{border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.33);border-radius:12px;padding:4px}
+.intro .lens button{font-weight:650;min-width:65px;background:transparent;color:#b0bbc8}
+.intro .lens button.picked{background:#f6f6f7;color:#12171f}
+.tabs{margin:16px 0 18px;gap:8px}
+.tabs button{border-color:var(--line);background:var(--surface);min-height:46px;padding:11px 16px;font-weight:650;font-size:12px;border-radius:11px}
+.tabs button.selected{box-shadow:0 7px 23px color-mix(in srgb,var(--accent) 20%,transparent)}
+.homeSelect{padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:0 0 16px}
+.homeSelect span{font-weight:700;color:var(--text);font-size:11px}
+.homeSelect select{border-color:var(--line-strong);min-height:42px;background:var(--surface-2)}
+.homeSelect a{font-weight:700;font-size:11px}
+.grid{gap:16px;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)}
+.card{position:relative;border-radius:19px;padding:22px 23px;background:var(--surface);box-shadow:0 16px 55px rgba(0,0,0,.06)}
+.heading{padding-bottom:18px;align-items:flex-start}
+.heading span{font-weight:730;font-size:20px;letter-spacing:-.04em}
+.heading small{font-size:10px;letter-spacing:.06em;color:var(--accent-text);font-weight:700;text-transform:uppercase}
+.metrics{gap:9px;margin:17px 0}
+.metrics>div{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:16px 13px}
+.metrics strong{font-size:30px;font-weight:720}
+.metrics span{font-size:10px}
+.subhead{font-size:10px;letter-spacing:.13em;margin:22px 0 9px;color:var(--accent-text)}
+.line,.issueRow{min-height:64px;gap:12px;padding:13px 2px}
+.line strong,.issueRow strong{font-weight:650;font-size:12px}
+.line small,.issueRow small{font-size:11px;line-height:1.4;margin-top:4px}
+.line>a{font-weight:750}
+.priority,.date,.alert,.resolved{padding:6px 8px;border-radius:8px;font-weight:750}
+.controls{gap:10px;margin-top:18px}
+.controls button{min-height:42px;padding:10px 15px;border-radius:10px;font-weight:700;font-size:12px}
+.controls button.primary{box-shadow:0 7px 23px color-mix(in srgb,var(--accent) 24%,transparent)}
+.editLine{grid-template-columns:minmax(0,1fr) 74px 145px 38px;gap:8px;margin-top:15px}
+.editLine label,.full,.issueFilters label{font-size:10px;font-weight:650;gap:6px}
+.editLine input,.full input,.issueFilters select{min-height:42px;padding:10px 12px;border-radius:9px;background:var(--surface-2);font-size:12px}
+.editLine button{min-height:42px;border:1px solid var(--line);background:var(--surface-2)}
+.explain{font-size:12px;line-height:1.65;margin-top:16px}
+.facts>div{font-size:12px;padding:14px 0}
+.facts strong{font-size:13px;font-weight:650}
+.facts .highlight{border-radius:10px;margin-top:9px;padding:17px 14px}
+.facts .highlight strong{font-size:18px;letter-spacing:-.025em}
+.check{min-height:51px;font-size:13px}
+.check input{width:19px;height:19px}
+.progress{height:8px;margin-top:18px}
+.issueRow button{min-height:36px;border-radius:8px}
+.outlineLink{font-size:12px;font-weight:700;border-radius:10px;padding:13px}
+.footer{font-size:10px;color:var(--text-3);line-height:1.6;margin-top:25px}
+@media(max-width:920px){.grid{grid-template-columns:1fr}.intro{min-height:151px}}
+@media(max-width:600px){.intro{padding:21px 19px;border-radius:18px}.intro strong{font-size:22px}.intro .lens{align-self:flex-start}.card{padding:17px;border-radius:16px}.heading span{font-size:19px}.tabs button{min-height:44px;padding:11px 13px;font-size:11px}.editLine{grid-template-columns:minmax(0,1fr) 61px 92px 28px;gap:5px}.editLine input{padding:7px 5px;font-size:11px}.editLine button{min-height:40px}.homeSelect select{max-width:100%;width:100%}}
