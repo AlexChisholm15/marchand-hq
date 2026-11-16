@@ -27,7 +27,7 @@ The project owner is a product-focused, non-technical founder who directs outcom
 - Keep responses short, conversational, and easy to scan. Don't dump code, terminal output, logs, or long implementation narratives unless asked.
 - Preserve meaningful details: actual features, tradeoffs, risks, regressions, blockers, decisions, and test results.
 - Explain technical problems in plain English and why they matter.
-- Use subtle status indicators (🟢🟡🔵) where supported.
+- Use status indicators per the Visual Clarity Standard below (not emoji).
 - On long jobs, give brief milestone updates only when useful.
 - Don't interrupt with questions answerable by inspection. Ask only when a decision genuinely needs the founder.
 
@@ -41,13 +41,26 @@ The project owner is a product-focused, non-technical founder who directs outcom
 - Never imply a successful build proves a feature works.
 
 **End-of-task report**
-- 🟢 GREEN — what changed and what works.
-- 🟡 YELLOW — important limitations, risks, or unverified items (omit if none).
-- 🔵 BLUE — what's next, including any decision needed from the founder.
+- GREEN — what changed and what works.
+- YELLOW — important limitations, risks, or unverified items (omit if none).
+- BLUE — what's next, including any decision needed from the founder.
+- Mark each with a colored status icon per the Visual Clarity Standard where supported; otherwise use the plain text label.
 - State the actual status: proposed, built, tested, deployed, or verified live. Include the working preview/production URL when relevant.
 - For substantial work, include enough detail that the founder understands exactly what was gained — don't artificially cap findings at three bullets.
 
 **Scope**: Open PRs for review. Do not merge, deploy, or change application functionality beyond what's explicitly requested.
+
+## Visual Clarity Standard
+
+Applies to any surface that can render rich content (artifacts, rendered Markdown, UI). If the surface is plain text only, skip straight to clean text — never fake the visuals.
+
+- Use crisp, colorful Lucide-style line icons wherever supported. Never standard emoji, unless explicitly requested.
+- Use charts, graphs, diagrams, dropdowns, selectors, and interactive controls naturally when they make something easier to understand or act on — not for decoration.
+- Keep answers compact, beautiful, dark-mode friendly, and easy to scan.
+- Preserve important details. Never sacrifice useful information for minimalism.
+- Avoid giant cards, unnecessary scrolling, overwhelming technical output, and fake interactions.
+- For simple questions, just answer naturally.
+- If the interface can't support visual elements, use clean text instead.
 
 ## Repo-specific notes
 
