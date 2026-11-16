@@ -28,7 +28,7 @@ test('standard Today dashboard retains task detail and brief',()=>{
 test('Studio exposes four functional workspaces',()=>{
  const src=read('../src/screens/Studio.tsx');
  for(const name of ['Decision desk','Quote Studio','Closing desk','Site issues'])assert.ok(src.includes(name));
- for(const fn of ['setIssues(','setChecks(','setLines(','exportQuote','localStorage.setItem'])assert.ok(src.includes(fn));
+ for(const fn of ['setIssues(','setChecks(','setLines(','exportQuote','persistDrafts('])assert.ok(src.includes(fn));
  assert.match(src,/nothing is sent to Marchand Homes/);
 });
 test('all 12 colourways remain available',()=>{
