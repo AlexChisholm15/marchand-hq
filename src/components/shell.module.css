@@ -127,3 +127,12 @@
   .askFab { bottom: 24px; right: 24px; }
   .askPanel { left: auto; right: 24px; bottom: 92px; width: min(440px, calc(100vw - 48px)); max-height: min(690px, 75dvh); }
 }
+
+.palettePicker { display: flex; align-items: center; gap: 5px; height: 36px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 0 8px; }
+.paletteDot { width: 13px; height: 13px; flex: none; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--accent-weak); }
+.palettePicker select { width: 72px; max-width: 72px; background: transparent; border: 0; font-size: 12px; color: var(--text); cursor: pointer; outline-offset: 4px; }
+@media (max-width: 480px) {
+  .palettePicker { padding: 0 5px; }
+  .palettePicker select { width: 58px; max-width: 58px; font-size: 11px; }
+  .topActions { gap: 0; }
+}
