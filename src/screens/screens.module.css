@@ -57,7 +57,7 @@
 @media (min-width: 760px) { .facts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .fact { min-width: 0; }
 .fact span { display: block; font-size: var(--fs-xs); color: var(--text-2); }
-.fact strong { display: block; margin-top: 2px; font-weight: 400; font-size: var(--fs-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fact strong { display: block; margin-top: 2px; font-weight: 400; font-size: var(--fs-sm); }
 .tabsWrap { margin-top: var(--s5); }
 
 .update { padding: var(--s4); border-top: 1px solid var(--line); }
@@ -82,6 +82,10 @@
 .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: var(--s2); padding: 3px; background: var(--surface-2); border-radius: var(--radius); }
 .segBtn { min-height: 36px; border: 0; border-radius: 8px; background: transparent; font-size: var(--fs-xs); color: var(--text-2); }
 .segOn { background: var(--surface); color: var(--text); font-weight: 500; box-shadow: 0 0 0 1px var(--line); }
+@media (min-width: 900px) {
+  .closing { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--s6); align-items: center; }
+  .closing .seg { margin-top: 0; }
+}
 .toolbar { display: flex; flex-wrap: wrap; gap: var(--s2); }
 .note { font-size: var(--fs-xs); color: var(--text-2); margin-top: var(--s2); }
 .def { padding: var(--s3) var(--s4); border-top: 1px solid var(--line); font-size: var(--fs-sm); }

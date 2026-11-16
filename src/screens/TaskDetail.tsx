@@ -10,7 +10,7 @@ import { useStore } from '@/lib/store';
 import { DEMO_CHANGE_ID, approvedExtras, finalPrice, showerRequest } from '@/lib/engine';
 import { forecast } from '@/lib/finance';
 import { SHOWER_CHANGE, STAGES } from '@/lib/seed';
-import { addDays, daysBetween, fmtDate, fmtDateLong, homeLabel, money, relDue } from '@/lib/format';
+import { addDays, daysBetween, fmtDate, fmtDateLong, homeLabel, money, moneyShort, relDue } from '@/lib/format';
 import type { Change, DemoEvent, Home, State, Task } from '@/lib/types';
 
 export function dueTone(today: string, due: string): Tone {
@@ -253,7 +253,7 @@ export function TaskDetail({ task, onDone }: { task: Task; onDone?: () => void }
         break;
       case 'open-money': {
         const f = forecast(state.today, state.homes, state.changes);
-        body = <KV rows={[['Lowest cash in 90 days', `${money(f.lowest.cash)} · week of ${fmtDate(f.lowest.start)}`, 'strong'], ['Closings in 90 days', String(f.closings.length)]]} />;
+        body = <KV rows={[['Lowest cash in 90 days', `${moneyShort(f.lowest.cash)} · week of ${fmtDate(f.lowest.start)}`, 'strong'], ['Closings in 90 days', String(f.closings.length)]]} />;
         actions = <><Button variant="primary" onClick={() => { onDone?.(); router.push('/money'); }}>Open Money</Button><Button onClick={() => fire({ type: 'task.done', taskId: task.id, at })}>Mark done</Button></>;
         break;
       }

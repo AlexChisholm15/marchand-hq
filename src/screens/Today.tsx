@@ -57,7 +57,7 @@ export function Today() {
       <Row
         key={t.id}
         title={t.title}
-        meta={[h ? lotLabel(h) : null, t.owner, t.source].filter(Boolean).join(' · ')}
+        meta={[h ? lotLabel(h) : null, t.owner !== r.person && role !== 'homeowner' ? t.owner : null, t.source].filter(Boolean).join(' · ')}
         side={t.status === 'done' ? 'Done' : <span className={late ? lateClass : undefined}>{relDue(state.today, t.due)}</span>}
         active={wide && t.id === selected}
         done={t.status === 'done'}
