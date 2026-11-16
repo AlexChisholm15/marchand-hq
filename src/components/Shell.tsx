@@ -94,7 +94,7 @@ export function Shell({ children }: { children: ReactNode }) {
         {ready && <FloatingAsk />}
         <SearchSheet open={search} onClose={() => setSearch(false)} />
         <RoleSheet open={roles} onClose={() => setRoles(false)} />
-        {ready && !welcomed && <Welcome />}
+        {ready && !welcomed && role === 'designer' && <Welcome />}
       </div>
     </ShellCtx.Provider>
   );
