@@ -19,9 +19,15 @@ These rules apply to any AI agent (Claude Code, Codex, or other) working in this
 - **No secrets.** Never commit API keys, tokens, passwords, or private financial/user data to this repository.
 - **Flag, don't silently fix, architectural or scope conflicts.** Surface them and ask.
 
+## Tool parity (Claude Code & Codex)
+
+- Do not add tool-specific hidden configuration (e.g. `.claude/`, `.cursorrules`, `.windsurfrules`) that changes behavior for one agent but not another, without mirroring the same rule here in `AGENTS.md`.
+- As of 2026-11-16, Codex has not been empirically verified against this file in this repo. Do not represent Codex as tested or compliant here until it has actually produced output that was checked against these rules.
+
 ## Repo-specific notes
 
-- Earliest-stage repo of the set (only `docs/LEGACY.md` exists currently). No bank doc yet — create `BUILD_BANK.md` (same status vocabulary as the other repos: Banked → Approved → Building → Tested → Deployed → Verified) when real build work starts here.
+- **`main` does not contain the live application.** As of a 2026-11-16 audit, `main` holds only `docs/LEGACY.md` plus this template, while the actual production Vercel deployment (`marchand-hq-v2.vercel.app`) is built from a separate feature/sprint branch, not `main`. Before assuming "nothing is built yet," confirm which branch is actually live.
+- No bank doc exists yet on `main`. Create `BUILD_BANK.md` (same status vocabulary as the other repos: Banked → Approved → Building → Tested → Deployed → Verified) when real build work starts here — check whether one already exists on the active production branch first.
 - Review `docs/LEGACY.md` before making assumptions about prior context.
 
 ---
