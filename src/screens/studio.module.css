@@ -1,0 +1,44 @@
+.intro{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:14px 16px;margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.intro strong{font-size:15px;font-weight:600}.intro p,.explain{font-size:12px;color:var(--text-2);margin-top:5px;line-height:1.5}
+.lens{display:flex;gap:3px;border-radius:9px;background:var(--surface-2);padding:3px;flex-shrink:0}
+.lens button,.tabs button,.controls button,.issueRow button,.editLine button{border:1px solid transparent;border-radius:8px;padding:9px 12px;background:var(--surface-2);font-size:12px;min-height:36px}
+.lens button.picked,.tabs button.selected{background:var(--accent);color:var(--on-accent)}
+.tabs{margin:14px 0;display:flex;gap:6px;overflow-x:auto;padding-bottom:3px}
+.tabs button{white-space:nowrap;border-color:var(--line)}.tabs button.selected{border-color:var(--accent)}
+.homeSelect{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:12px;flex-wrap:wrap;color:var(--text-2)}
+.homeSelect select,.issueFilters select,.full input,.editLine input{min-height:38px;padding:8px 10px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);border-radius:8px;min-width:0}
+.homeSelect select{flex:1;max-width:370px}.homeSelect a,.line a{color:var(--accent-text);font-size:12px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.heading{display:flex;gap:10px;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.heading span{font-weight:600;font-size:15px}.heading small{font-size:10px;color:var(--text-3)}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:14px 0}
+.metrics div{padding:10px;background:var(--surface-2);border-radius:9px}.metrics strong{display:block;font-size:25px;letter-spacing:-.04em}
+.metrics span{font-size:10px;color:var(--text-2)}
+.subhead{font-size:11px;font-weight:650;color:var(--text-2);text-transform:uppercase;letter-spacing:.07em;margin:18px 0 4px}
+.line,.issueRow{display:flex;gap:9px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:12px}
+.line>div,.issueRow>div{flex:1;min-width:0}.line strong,.issueRow strong{display:block;font-size:12px;font-weight:600}
+.line small,.issueRow small{display:block;font-size:10px;color:var(--text-2);margin-top:3px}
+.priority,.date,.alert,.resolved{display:inline-flex;align-items:center;justify-content:center;min-width:50px;padding:4px 6px;border-radius:6px;background:var(--accent-weak);color:var(--accent-text);font-size:10px;flex-shrink:0}
+.alert{background:var(--amber-weak);color:var(--amber)}.resolved{background:var(--green-weak);color:var(--green)}
+.outlineLink{display:block;margin-top:16px;padding:10px;border:1px solid var(--line-strong);border-radius:8px;color:var(--accent-text);text-align:center;font-size:12px}
+.empty{font-size:12px;color:var(--text-2);padding:15px 0}
+.editLine{display:grid;grid-template-columns:minmax(0,1fr) 64px 120px 30px;gap:5px;align-items:end;margin-top:12px}
+.editLine label,.full,.issueFilters label{display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--text-2)}
+.editLine input{width:100%;font-size:12px}.editLine button{padding:3px;font-size:20px;line-height:1}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.controls button{border-color:var(--line-strong);background:var(--surface);color:var(--text)}.controls button.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.controls button:disabled{opacity:.4;cursor:not-allowed}
+.facts{margin-top:12px}
+.facts>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}
+.facts span{color:var(--text-2)}.facts strong{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.facts .highlight{color:var(--accent-text);background:var(--accent-weak);padding:12px;border-radius:8px;margin-top:6px;border:0}
+.facts .highlight span{color:inherit}.check{display:flex;align-items:center;gap:12px;min-height:44px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.progress{height:5px;border-radius:10px;background:var(--surface-2);overflow:hidden;margin-top:14px}.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
+.issueFilters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.full{margin-top:14px}.issueRow button{border-color:var(--line);flex-shrink:0;padding:7px 8px}
+.feedback{margin-top:14px;color:var(--accent-text);font-size:12px}
+.footer{margin:22px 0;color:var(--text-3);font-size:10px;line-height:1.5}
+@media(min-width:850px){.grid{grid-template-columns:1.12fr .88fr}}
+@media(max-width:580px){.intro{align-items:flex-start;flex-direction:column}.tabs button{padding:10px 12px}.card{padding:13px}.metrics strong{font-size:21px}.editLine{grid-template-columns:minmax(0,1fr) 60px 97px 25px}.editLine input{padding:6px;font-size:11px}.line,.issueRow{gap:6px}.line .priority,.line .date{min-width:42px}.issueRow button{font-size:10px;padding:5px}}
