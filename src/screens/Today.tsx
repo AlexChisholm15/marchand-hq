@@ -12,6 +12,7 @@ import { daysBetween, lotLabel, relDue } from '@/lib/format';
 import type { Task } from '@/lib/types';
 import { TaskDetail } from './TaskDetail';
 import { OpsBrief } from '@/components/OpsBrief';
+import { DemoRoute } from '@/components/DemoRoute';
 
 function useWide() {
   const [wide, setWide] = useState(false);
@@ -72,6 +73,7 @@ export function Today() {
 
   return (
     <Page title="Today" sub={`${r.person} · ${r.title}`}>
+      <DemoRoute />
       <OpsBrief />
       <div className={s.split}>
         <div>
