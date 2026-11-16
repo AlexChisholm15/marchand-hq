@@ -137,3 +137,18 @@ h3 { font-size: var(--fs-sm); font-weight: 500; }
 :root[data-theme='dark'][data-palette='blackgold'] { --accent:#f1cf8b; --accent-text:#ffe2a5; --accent-weak:#332b1e; --on-accent:#1c180e; }
 :root[data-theme='dark'][data-palette='coastal'] { --accent:#82d3df; --accent-text:#abe7ec; --accent-weak:#15333b; --on-accent:#10313a; }
 :root[data-theme='dark'][data-palette='city'] { --accent:#a8b6fb; --accent-text:#cbd2ff; --accent-weak:#242c48; --on-accent:#121c39; }
+
+
+/* Sprint 2: understated premium shell. Surfaces remain neutral in every colourway. */
+:root[data-theme='dark']{
+ --bg:#0b0d11;--surface:#14171d;--surface-2:#1c2028;
+ --line:#292e38;--line-strong:#3a414c;
+ --text:#f1f3f6;--text-2:#afb7c1;--text-3:#818b98;
+}
+:root[data-theme='light']{
+ --bg:#f7f7f5;--surface:#fff;--surface-2:#f0f2f3;
+ --line:#e1e3e7;--line-strong:#c9ced4;
+ --text:#17191e;--text-2:#5a626d;--text-3:#77808c;
+}
+body{background:var(--bg);letter-spacing:-.005em}
+::selection{background:var(--accent-weak);color:var(--accent-text)}
