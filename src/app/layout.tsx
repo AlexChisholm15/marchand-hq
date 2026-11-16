@@ -21,7 +21,7 @@ export const viewport: Viewport = {
   ],
 };
 
-const themeScript = `try{var s=JSON.parse(localStorage.getItem('marchand-hq-v6')||'{}').theme||'system';var d=s==='dark'||(s==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}`;
+const themeScript = `try{var s=JSON.parse(localStorage.getItem('marchand-hq-v6')||'{}').theme||'dark';var d=s==='dark'||(s==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}`;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
