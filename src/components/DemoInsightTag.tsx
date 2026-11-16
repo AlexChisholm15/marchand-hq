@@ -19,11 +19,19 @@ export function DemoInsightTag({ topic }: { topic: DemoInsightKey }) {
       if (!isActive) setOpen(false);
     };
     sync();
+    const routed = (event: Event) => {
+      const detail=(event as CustomEvent<{index:number|null}>).detail;
+      if(detail && 'index' in detail) {
+        const isActive=detail.index===insight.step-1;
+        setActive(isActive);
+        if(!isActive)setOpen(false);
+      } else sync();
+    };
     window.addEventListener('popstate', sync);
-    window.addEventListener('marchand:demo-route', sync);
+    window.addEventListener('marchand:demo-route', routed);
     return () => {
       window.removeEventListener('popstate', sync);
-      window.removeEventListener('marchand:demo-route', sync);
+      window.removeEventListener('marchand:demo-route', routed);
     };
   }, [insight.step]);
 
