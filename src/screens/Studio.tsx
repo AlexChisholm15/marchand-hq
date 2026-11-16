@@ -68,11 +68,14 @@ export function Studio(){
   useEffect(()=>{if(!homeId||!homes.some(h=>h.id===homeId))setHomeId(homes[0]?.id||'');},[homeId,homes]);
   useEffect(()=>{
     if(!loaded)return;
-    const ok=persistDrafts(localStorage,[
-      [QUOTE_KEY,JSON.stringify(quotes)],
-      [ISSUE_KEY,JSON.stringify(issues)],
-      [CHECK_KEY,JSON.stringify(checks)]
-    ]);
+    let ok=false;
+    try {
+      ok=persistDrafts(window.localStorage,[
+        [QUOTE_KEY,JSON.stringify(quotes)],
+        [ISSUE_KEY,JSON.stringify(issues)],
+        [CHECK_KEY,JSON.stringify(checks)]
+      ]);
+    } catch { /* storage accessor itself can be blocked */ }
     setStorageError(!ok);
   },[quotes,issues,checks,loaded]);
 
