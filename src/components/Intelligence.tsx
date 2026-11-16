@@ -40,7 +40,7 @@ function demoAnswer(q:string, today:string, tasks:Task[], homes:ReturnType<typeo
   return { message:lines.join('\n'),refs,mode:'demo'};
 }
 
-export function Intelligence() {
+export function AskContent() {
   const {state,role} = useStore();
   const [q,setQ]=useState('');
   const [busy,setBusy]=useState(false);
