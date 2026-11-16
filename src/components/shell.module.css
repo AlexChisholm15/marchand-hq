@@ -136,3 +136,24 @@
   .palettePicker select { width: 58px; max-width: 58px; font-size: 11px; }
   .topActions { gap: 0; }
 }
+
+
+/* Sprint 2: compact architectural application chrome. */
+@media(min-width:900px){
+ .rail{background:var(--surface);padding:22px 13px 18px}
+ .brand{font-weight:780;font-size:16px;letter-spacing:-.04em;padding:6px 10px 28px}
+ .brand svg{width:34px;height:34px;filter:drop-shadow(0 5px 9px rgba(0,0,0,.15))}
+ .railItem{min-height:44px;border-radius:10px;margin-bottom:3px;font-weight:550}
+ .railOn,.railOn:hover{font-weight:740;background:var(--accent-weak);color:var(--accent-text)}
+ .railFoot{font-size:10px;border-top:1px solid var(--line);padding-top:16px;letter-spacing:.03em}
+ .main{max-width:1580px;padding-left:27px;padding-right:27px}
+ .top{margin-left:-27px;margin-right:-27px;padding:17px 27px;border-bottom:1px solid var(--line)}
+ .palettePicker select{width:124px;max-width:124px}
+}
+.topTitle{font-weight:750;letter-spacing:-.045em;font-size:clamp(21px,2.3vw,27px)}
+.topSub{font-size:11px;letter-spacing:.01em}
+.roleChip{font-weight:680;border-color:var(--line);border-radius:11px;background:var(--surface-2)}
+.palettePicker{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;min-height:40px}
+.palettePicker select{font-weight:620;width:114px;max-width:114px;white-space:nowrap;text-overflow:ellipsis}
+@media(max-width:520px){.palettePicker select{width:72px;max-width:72px}.palettePicker{padding:0 6px}.topTitle{font-size:20px}.topSub{font-size:10px}.roleChip{max-width:82px;min-height:40px;padding:0 9px;font-size:11px}}
+@media(max-width:900px){.bottom{border-top-color:var(--line-strong);box-shadow:0 -8px 40px rgba(0,0,0,.08)}}
