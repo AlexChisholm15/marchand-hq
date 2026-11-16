@@ -26,7 +26,7 @@ function activeNav(path: string): NavId {
   if (path.startsWith('/homes')) return 'homes';
   if (path.startsWith('/changes')) return 'changes';
   if (path.startsWith('/money')) return 'money';
-  if (path.startsWith('/more')) return 'more';
+  if (path.startsWith('/more') || path.startsWith('/studio')) return 'more';
   return 'today';
 }
 
