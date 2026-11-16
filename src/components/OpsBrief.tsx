@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, ArrowUpRight, Check, ClipboardCopy, Copy, Clock3, Filter, ListChecks } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, Check, ClipboardCopy, Clock3, Filter, ListChecks } from 'lucide-react';
 import { useStore } from '@/lib/store';
 import { homesFor } from '@/lib/engine';
 import { daysBetween } from '@/lib/format';
@@ -34,7 +34,7 @@ export function OpsBrief(){
     const text=[
       `Marchand HQ · ${role.toUpperCase()} · ${state.today} · SAMPLE DATA`,
       `Open: ${data.tasks.length} | Due/overdue: ${data.due.length} | Delays: ${data.delays.length} | Changes awaiting action: ${data.changes.length}`,
-      ...data.tasks.map(t=>`[${urgency(state.today,t.due)}] ${t.title} (${t.id})`),
+      ...data.tasks.map(t=>`[${urgency(state.today,t)}] ${t.title} (${t.id})`),
       ...data.delays.map(h=>`Delay: Lot ${h.lot}, ${h.community}, ${h.behindWeeks} weeks behind`),
       'Generated from fictional demo records; not live Marchand business data.',
     ].join('\n');
