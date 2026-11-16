@@ -8,6 +8,7 @@ import { Button, Empty, List, Row, Section, Sheet, lateClass } from '@/component
 import { useStore } from '@/lib/store';
 import { todayFor } from '@/lib/engine';
 import { roleById } from '@/lib/people';
+import { retainTaskSelection } from '@/lib/demoSafety';
 import { daysBetween, lotLabel, relDue } from '@/lib/format';
 import type { Task } from '@/lib/types';
 import { TaskDetail } from './TaskDetail';
@@ -53,7 +54,10 @@ export function Today() {
       if (next && next.id !== selected) setSelected(next.id);
     }
   }, [wide, current, groups.now, groups.week, selected]);
-  useEffect(() => setSelected(null), [role]);
+  useEffect(() => {
+    // Preserve a valid ?task= deep link on initial load and when switching roles.
+    setSelected((previous) => retainTaskSelection(previous, role, state.tasks));
+  }, [role, state.tasks]);
 
   const homeOf = (t: Task) => (t.homeId ? state.homes.find((h) => h.id === t.homeId) : undefined);
   const row = (t: Task) => {
