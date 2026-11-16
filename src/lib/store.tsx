@@ -21,7 +21,7 @@ type Saved = {
 };
 
 const KEY = 'marchand-hq-v6';
-const FRESH: Saved = { v: 6, events: [], role: 'owner', theme: 'system', palette: 'cobalt', whatIf: {}, guide: true, welcomed: false };
+const FRESH: Saved = { v: 6, events: [], role: 'owner', theme: 'dark', palette: 'marchand63', whatIf: {}, guide: true, welcomed: false };
 
 type Store = {
   ready: boolean;
