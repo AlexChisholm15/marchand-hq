@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
-import { Intelligence } from './Intelligence';
+import { AskContent } from './Intelligence';
 import s from './shell.module.css';
 
 export function FloatingAsk() {
@@ -25,7 +25,7 @@ export function FloatingAsk() {
           <span>Ask Marchand <small>· Demo assistant</small></span>
           <button type="button" aria-label="Close Ask Marchand" onClick={() => setOpen(false)}><X size={20} aria-hidden /></button>
         </header>
-        <div className={s.askBody}><Intelligence /></div>
+        <div className={s.askBody}><AskContent /></div>
       </section>
     </div>}
   </>;
