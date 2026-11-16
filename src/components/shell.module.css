@@ -3,7 +3,9 @@
 .rail { display: none; }
 .brandOn { color: var(--accent-text); }
 .brand:hover { color: var(--accent-text); }
-.mobileBrand { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 3px; font-size: 10px; font-weight: 650; color: var(--text-2); }
+.mobileBrand { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 3px 7px; margin-bottom: 5px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); font-size: 10px; font-weight: 650; color: var(--text); }
+.mobileBrand:hover { background: var(--accent-weak); color: var(--accent-text); }
+.teamHomeButton { border: 1px solid var(--line-strong); margin-bottom: 12px !important; }
 @media(min-width:900px) { .mobileBrand { display: none; } }
 
 .main {

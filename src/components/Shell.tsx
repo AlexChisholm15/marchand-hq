@@ -39,10 +39,13 @@ export function Shell({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState(false);
   const nav = navFor(role);
   const on = activeNav(path);
+  const isTeamHome = path === '/community';
+  const teamHomeRestricted = isTeamHome && role === 'homeowner';
 
   // A role never sees a screen it has no business on.
   useEffect(() => {
     if (!ready) return;
+    if (role === 'homeowner' && path === '/community') router.replace(`/homes/${DEMO_HOME_ID}`);
     if (path.startsWith('/money') && !canSeeMoney(role)) router.replace('/');
     if (role === 'homeowner' && path.startsWith('/homes') && path !== `/homes/${DEMO_HOME_ID}`) router.replace(`/homes/${DEMO_HOME_ID}`);
   }, [ready, role, path, router]);
@@ -65,10 +68,14 @@ export function Shell({ children }: { children: ReactNode }) {
     <ShellCtx.Provider value={api}>
       <div className={s.app}>
         <nav className={s.rail} aria-label="Main">
-          <Link href="/community" className={`${s.brand} ${path === '/community' ? s.brandOn : ''}`} aria-label="Marchand HQ team home" aria-current={path === '/community' ? 'page' : undefined}>
+          <Link href={role === 'homeowner' ? `/homes/${DEMO_HOME_ID}` : '/community'} className={`${s.brand} ${isTeamHome ? s.brandOn : ''}`} aria-label={role === 'homeowner' ? 'Marchand HQ my home' : 'Marchand HQ team home'} aria-current={isTeamHome ? 'page' : undefined}>
             <Logo size={28} />
             Marchand HQ
           </Link>
+          {role !== 'homeowner' && <Link href="/community" className={`${s.railItem} ${s.teamHomeButton} ${isTeamHome ? s.railOn : ''}`} aria-current={isTeamHome ? 'page' : undefined}>
+            <House size={18} aria-hidden />
+            Team home
+          </Link>}
           {nav.map((n) => {
             const Icon = ICONS[n.id];
             return (
@@ -80,7 +87,7 @@ export function Shell({ children }: { children: ReactNode }) {
           })}
           <div className={s.railFoot}>Sample data · demo only</div>
         </nav>
-        <main className={s.main}>{ready ? children : <Loading />}</main>
+        <main className={s.main}>{ready && !teamHomeRestricted ? children : <Loading />}</main>
         <nav className={s.bottom} aria-label="Main">
           {nav.map((n) => {
             const Icon = ICONS[n.id];
@@ -139,7 +146,7 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
           </span>
         )}
         <div className={s.topText}>
-          <Link href="/community" className={s.mobileBrand} aria-label="Marchand HQ team home"><Logo size={24} /><span>Marchand HQ</span></Link>
+          {role !== 'homeowner' && <Link href="/community" className={s.mobileBrand} aria-label="Team home"><House size={13} aria-hidden /><span>Team home</span></Link>}
           <h1 className={s.topTitle}>{title}</h1>
           {sub && <p className={s.topSub}>{sub}</p>}
         </div>
