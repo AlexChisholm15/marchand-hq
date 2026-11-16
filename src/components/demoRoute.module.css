@@ -1,0 +1,11 @@
+.guide{border:1px solid var(--line);border-left:3px solid var(--accent);background:var(--surface);padding:12px 14px;border-radius:12px;margin:14px 0 0}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.head>div{display:flex;flex-direction:column;gap:3px}
+.label{font-size:9px;color:var(--accent-text);font-weight:700;letter-spacing:.08em}
+.head strong{font-size:13px;font-weight:600}
+.head button{padding:7px 9px;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);font-size:11px;white-space:nowrap}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:12px}
+.step{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;border:1px solid var(--line);border-radius:10px;padding:11px 9px;background:var(--surface-2);min-height:80px}
+.step:hover{border-color:var(--accent);background:var(--accent-weak)}
+.step small{color:var(--accent-text);font-size:9px}.step strong{font-size:12px;font-weight:600}.step span{color:var(--text-2);font-size:10px}
+@media(max-width:800px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.step{min-height:70px}.steps .step:last-child{grid-column:1/-1}}
