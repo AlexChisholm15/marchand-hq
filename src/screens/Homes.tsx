@@ -55,8 +55,8 @@ export function Homes() {
       ['Lot','Community','Plan','Stage','Status','Closing','Weeks behind'],
       ...list.map(h => [h.lot, h.community, h.plan, STAGES[h.stage], h.status, h.closing ?? '', String(h.behindWeeks)]),
     ];
-    const csv = rows.map(row => row.map(cell).join(',')).join('\\r\\n');
-    const file = new Blob(['\\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
+    const csv = rows.map(row => row.map(cell).join(',')).join('\r\n');
+    const file = new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(file);
     const a = document.createElement('a');
     a.href = url; a.download = 'marchand-homes-demo.csv'; document.body.appendChild(a); a.click(); a.remove();
