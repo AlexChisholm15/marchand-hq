@@ -61,6 +61,9 @@ export function Shell({ children }: { children: ReactNode }) {
 
   const api = useMemo(() => ({ openSearch: () => setSearch(true), openRoles: () => setRoles(true) }), []);
 
+  // Authentication uses a standalone screen without the demo navigation or store UI.
+  if (path === '/login') return <>{children}</>;
+
   return (
     <ShellCtx.Provider value={api}>
       <div className={s.app}>
