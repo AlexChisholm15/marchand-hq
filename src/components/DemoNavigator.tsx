@@ -29,6 +29,7 @@ export function DemoNavigator() {
       const step = steps[index];
       setActive(index);
       setRole(step.role);
+      window.dispatchEvent(new CustomEvent('marchand:demo-route',{detail:{index,href:step.href}}));
       router.push(demoHref(step.href, index));
     };
     window.addEventListener('marchand:start-demo', start);
@@ -40,11 +41,13 @@ export function DemoNavigator() {
     const step = steps[index];
     setActive(index);
     setRole(step.role);
+    window.dispatchEvent(new CustomEvent('marchand:demo-route',{detail:{index,href:step.href}}));
     router.push(demoHref(step.href, index));
   };
 
   const exit = () => {
     setActive(null);
+    window.dispatchEvent(new CustomEvent('marchand:demo-route',{detail:{index:null,href:''}}));
     router.replace(exitDemoHref(window.location.pathname, window.location.search));
   };
 
