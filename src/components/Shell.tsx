@@ -152,6 +152,12 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
               <option value="plum">Plum</option>
               <option value="slate">Slate</option>
               <option value="rose">Rose</option>
+              <option value="marchand63">Marchand 63</option>
+              <option value="panther">Panther Red</option>
+              <option value="architect">Architect</option>
+              <option value="blackgold">Black &amp; Gold</option>
+              <option value="coastal">Coastal</option>
+              <option value="city">City</option>
             </select>
           </label>
           <IconButton label="Search homes and tasks" onClick={openSearch}>
