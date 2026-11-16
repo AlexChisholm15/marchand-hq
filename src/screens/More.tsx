@@ -9,10 +9,20 @@ import { Button, List, Pill, Row, Section, Sheet, Tabs } from '@/components/ui';
 import { useStore } from '@/lib/store';
 import { ROLES } from '@/lib/people';
 import { STORY } from '@/lib/engine';
+import type { Palette } from '@/lib/store';
 import { fmtDate, lotLabel } from '@/lib/format';
 
+const COLOURWAYS: {id:Palette;label:string;hex:string}[]=[
+  {id:'cobalt',label:'Cobalt',hex:'#315dce'},{id:'copper',label:'Copper',hex:'#a35b35'},
+  {id:'forest',label:'Forest',hex:'#327d62'},{id:'plum',label:'Plum',hex:'#8852ae'},
+  {id:'slate',label:'Slate',hex:'#4b6681'},{id:'rose',label:'Rose',hex:'#a84969'},
+  {id:'marchand63',label:'Marchand 63',hex:'#a87936'},{id:'panther',label:'Panther Red',hex:'#bd3542'},
+  {id:'architect',label:'Architect',hex:'#426b69'},{id:'blackgold',label:'Black & Gold',hex:'#826b3c'},
+  {id:'coastal',label:'Coastal',hex:'#237a8f'},{id:'city',label:'City',hex:'#5565a1'}
+];
+
 export function More() {
-  const { role, setRole, theme, setTheme, guide, setGuide, reset, state, story } = useStore();
+  const { role, setRole, theme, setTheme, palette, setPalette, guide, setGuide, reset, state, story } = useStore();
   const router = useRouter();
   const [confirm, setConfirm] = useState(false);
   const activity = state.activity.slice(0, 12);
@@ -67,6 +77,11 @@ export function More() {
           onChange={setTheme}
           label="Theme"
         />
+        <div className={s.paletteGrid} role="group" aria-label="Choose colourway">
+          {COLOURWAYS.map(c=><button type="button" key={c.id} className={palette===c.id?s.paletteActive:s.paletteButton} aria-pressed={palette===c.id} onClick={()=>setPalette(c.id)}>
+            <span className={s.paletteSwatch} style={{background:c.hex}} />{c.label}
+          </button>)}
+        </div>
       </Section>
 
       <Section title="Shared activity" count={state.activity.length}>
