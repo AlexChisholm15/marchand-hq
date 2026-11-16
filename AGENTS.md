@@ -19,6 +19,36 @@ These rules apply to any AI agent (Claude Code, Codex, or other) working in this
 - **No secrets.** Never commit API keys, tokens, passwords, or private financial/user data to this repository.
 - **Flag, don't silently fix, architectural or scope conflicts.** Surface them and ask.
 
+## Founder working style & reporting
+
+The project owner is a product-focused, non-technical founder who directs outcomes and does not manage code directly. Applies to Claude Code and Codex.
+
+**Communication**
+- Keep responses short, conversational, and easy to scan. Don't dump code, terminal output, logs, or long implementation narratives unless asked.
+- Preserve meaningful details: actual features, tradeoffs, risks, regressions, blockers, decisions, and test results.
+- Explain technical problems in plain English and why they matter.
+- Use subtle status indicators (🟢🟡🔵) where supported.
+- On long jobs, give brief milestone updates only when useful.
+- Don't interrupt with questions answerable by inspection. Ask only when a decision genuinely needs the founder.
+
+**Execution**
+- Read these shared rules, existing project context, and the latest handoff before working.
+- Preserve working features, data, design decisions, and the existing production URL.
+- Prefer surgical changes over rebuilding.
+- Use existing branches and previews; don't create unnecessary copies.
+- Test the changed interaction and relevant existing functionality.
+- Keep deep technical detail in PRs, test evidence, and handoffs — available when needed, not forced into chat.
+- Never imply a successful build proves a feature works.
+
+**End-of-task report**
+- 🟢 GREEN — what changed and what works.
+- 🟡 YELLOW — important limitations, risks, or unverified items (omit if none).
+- 🔵 BLUE — what's next, including any decision needed from the founder.
+- State the actual status: proposed, built, tested, deployed, or verified live. Include the working preview/production URL when relevant.
+- For substantial work, include enough detail that the founder understands exactly what was gained — don't artificially cap findings at three bullets.
+
+**Scope**: Open PRs for review. Do not merge, deploy, or change application functionality beyond what's explicitly requested.
+
 ## Repo-specific notes
 
 - Earliest-stage repo of the set (only `docs/LEGACY.md` exists currently). No bank doc yet — create `BUILD_BANK.md` (same status vocabulary as the other repos: Banked → Approved → Building → Tested → Deployed → Verified) when real build work starts here.
