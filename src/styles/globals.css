@@ -122,3 +122,18 @@ h3 { font-size: var(--fs-sm); font-weight: 500; }
 :root[data-theme='dark'][data-palette='plum'] { --accent: #c598e5; --accent-text: #d8b7f1; --accent-weak: #2c2035; --on-accent: #25142e; }
 :root[data-theme='dark'][data-palette='slate'] { --accent: #9bb6d2; --accent-text: #b6c9df; --accent-weak: #25303e; --on-accent: #172536; }
 :root[data-theme='dark'][data-palette='rose'] { --accent: #ee95b2; --accent-text: #f7adc7; --accent-weak: #3b202d; --on-accent: #2c1220; }
+
+
+/* Recovered V5 colourways. Accents change; standard V6 layout and readable surfaces remain unchanged. */
+:root[data-palette='marchand63'] { --accent:#a87936; --accent-text:#7b5423; --accent-weak:#f5ecdf; --on-accent:#fff; }
+:root[data-palette='panther'] { --accent:#bd3542; --accent-text:#9b2936; --accent-weak:#fae8ec; --on-accent:#fff; }
+:root[data-palette='architect'] { --accent:#426b69; --accent-text:#315754; --accent-weak:#e7f0ee; --on-accent:#fff; }
+:root[data-palette='blackgold'] { --accent:#826b3c; --accent-text:#6a522a; --accent-weak:#f4eee1; --on-accent:#fff; }
+:root[data-palette='coastal'] { --accent:#237a8f; --accent-text:#176479; --accent-weak:#e5f3f7; --on-accent:#fff; }
+:root[data-palette='city'] { --accent:#5565a1; --accent-text:#40528d; --accent-weak:#ebedf9; --on-accent:#fff; }
+:root[data-theme='dark'][data-palette='marchand63'] { --accent:#deb778; --accent-text:#edc98e; --accent-weak:#33291a; --on-accent:#201609; }
+:root[data-theme='dark'][data-palette='panther'] { --accent:#fc8592; --accent-text:#ffacb7; --accent-weak:#392026; --on-accent:#2a0c12; }
+:root[data-theme='dark'][data-palette='architect'] { --accent:#8bc2bc; --accent-text:#b2dcd4; --accent-weak:#1d302f; --on-accent:#102421; }
+:root[data-theme='dark'][data-palette='blackgold'] { --accent:#f1cf8b; --accent-text:#ffe2a5; --accent-weak:#332b1e; --on-accent:#1c180e; }
+:root[data-theme='dark'][data-palette='coastal'] { --accent:#82d3df; --accent-text:#abe7ec; --accent-weak:#15333b; --on-accent:#10313a; }
+:root[data-theme='dark'][data-palette='city'] { --accent:#a8b6fb; --accent-text:#cbd2ff; --accent-weak:#242c48; --on-accent:#121c39; }
