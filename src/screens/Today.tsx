@@ -77,7 +77,7 @@ export function Today() {
 
   return (
     <Page title={role === 'owner' ? 'Executive' : role === 'coo' ? 'Operations' : 'Today'} sub={`${r.person} · ${r.title}`}>
-      {role === 'owner' || role === 'coo' ? <ExecutiveDashboard /> : <><DemoRoute /><OpsBrief /></>}
+      {role === 'owner' || role === 'coo' ? <><ExecutiveDashboard /><details className={s.briefDisclosure}><summary>Detailed operations brief &amp; copyable handoff</summary><OpsBrief /></details></> : <><DemoRoute /><OpsBrief /></>}
       <div id="mhq-task-workflow" className={s.split}>
         <div>
           {empty ? (
