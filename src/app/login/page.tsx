@@ -1,15 +1,14 @@
 'use client';
-import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, type FormEvent } from 'react';
 import { safeReturnPath } from '@/lib/labAuth';
 
 export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const params = useSearchParams();
-  const next = safeReturnPath(params.get('next'));
-  async function submit(event: React.FormEvent) {
+  const [next, setNext] = useState('/');
+  useEffect(() => setNext(safeReturnPath(new URLSearchParams(window.location.search).get('next'))), []);
+  async function submit(event: FormEvent) {
     event.preventDefault(); if (!password || busy) return;
     setBusy(true); setError('');
     try {
