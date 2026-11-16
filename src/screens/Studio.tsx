@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { canOpenStudio, persistDrafts } from '@/lib/demoSafety';
 import { useStore } from '@/lib/store';
 import { Page } from '@/components/Shell';
+import { DemoInsightTag } from '@/components/DemoInsightTag';
 import { finalPrice, homesFor } from '@/lib/engine';
 import { money, fmtDate } from '@/lib/format';
 import { STAGES } from '@/lib/seed';
@@ -56,6 +57,17 @@ export function Studio(){
   const [issueTitle,setIssueTitle]=useState('');
   const [issuePriority,setIssuePriority]=useState<Issue['priority']>('Important');
   const [issueOwner,setIssueOwner]=useState<Issue['owner']>('Scott');
+
+  useEffect(()=>{
+    const onDemoRoute = (event: Event) => {
+      const detail=(event as CustomEvent<{href:string}>).detail;
+      if(!detail?.href)return;
+      const tab=new URL(detail.href,window.location.origin).searchParams.get('tab');
+      if(TABS.some(item=>item.id===tab)){setTab(tab as Tab);setMessage('');}
+    };
+    window.addEventListener('marchand:demo-route',onDemoRoute);
+    return ()=>window.removeEventListener('marchand:demo-route',onDemoRoute);
+  },[]);
 
   useEffect(()=>{
     const next=new URLSearchParams(location.search).get('tab');
@@ -152,7 +164,7 @@ export function Studio(){
     </label>}
     {tab==='decisions'&&<div className={s.grid}>
       <section className={s.card}>
-        <div className={s.heading}><span>Company exceptions</span><small>Fictional sample data</small></div>
+        <div className={s.heading}><span>Company exceptions</span><small>Fictional sample data</small><DemoInsightTag topic="decision"/></div>
         <div className={s.metrics}>
           <div><strong>{pending.length}</strong><span>Jeff / Scott tasks</span></div>
           <div><strong>{delayed.length}</strong><span>Delayed homes</span></div>
@@ -166,7 +178,7 @@ export function Studio(){
         </div>):<p className={s.empty}>No outstanding Jeff or Scott demo tasks. Try the guided story from Today.</p>}
       </section>
       <section className={s.card}>
-        <div className={s.heading}><span>Project watch</span><small>Cross-home signals</small></div>
+        <div className={s.heading}><span>Project watch</span><small>Cross-home signals</small><DemoInsightTag topic="watch"/></div>
         <div className={s.subhead}>Upcoming closings</div>
         {nextClosings.map(h=><div className={s.line} key={h.id}>
           <span className={s.date}>{h.closing?fmtDate(h.closing):'—'}</span>
@@ -184,7 +196,7 @@ export function Studio(){
     </div>}
     {tab==='quote'&&home&&<div className={s.grid}>
       <section className={s.card}>
-        <div className={s.heading}><span>Quote Studio</span><small>Illustrative · not approved</small></div>
+        <div className={s.heading}><span>Quote Studio</span><small>Illustrative · not approved</small><DemoInsightTag topic="quote"/></div>
         <p className={s.explain}>Create a proposed extra for this sample home. Existing approved change orders are already in the base total; drafts never change contracts or shared records.</p>
         {lines.map((l,i)=><div className={s.editLine} key={l.id}>
           <label>Description<input aria-label={'Extra description '+(i+1)} value={l.label} maxLength={140} placeholder="e.g. Additional trim package" onChange={e=>edit(l.id,{label:e.target.value})}/></label>
@@ -203,7 +215,7 @@ export function Studio(){
         </div>
       </section>
       <aside className={s.card}>
-        <div className={s.heading}><span>Estimate inspector</span><small>Auto-calculated</small></div>
+        <div className={s.heading}><span>Estimate inspector</span><small>Auto-calculated</small><DemoInsightTag topic="estimate"/></div>
         <div className={s.facts}>
           <div><span>Contract price incl. HST</span><strong>{money(home.contractPrice)}</strong></div>
           <div><span>Approved extras incl. HST</span><strong>{money(finalPrice(home,state.changes)-home.contractPrice)}</strong></div>
@@ -221,7 +233,7 @@ export function Studio(){
     </div>}
     {tab==='closeout'&&home&&<div className={s.grid}>
       <section className={s.card}>
-        <div className={s.heading}><span>Closing readiness</span><small>{checksDone.length}/{CHECKS.length} checked</small></div>
+        <div className={s.heading}><span>Closing readiness</span><small>{checksDone.length}/{CHECKS.length} checked</small><DemoInsightTag topic="closeout"/></div>
         <div className={s.progress}><i style={{width:((checksDone.length/CHECKS.length)*100)+'%'}}/></div>
         <p className={s.explain}>Review tasks, amendments and documents before closing. Checkboxes are a personal demo review list, not proof that a document exists or is signed.</p>
         {CHECKS.map(name=><label className={s.check} key={name}>
@@ -234,7 +246,7 @@ export function Studio(){
         </div>
       </section>
       <aside className={s.card}>
-        <div className={s.heading}><span>Closing context</span><small>Derived from demo records</small></div>
+        <div className={s.heading}><span>Closing context</span><small>Derived from demo records</small><DemoInsightTag topic="handoff"/></div>
         <div className={s.facts}>
           <div><span>Closing date</span><strong>{home.closing?fmtDate(home.closing):'Not scheduled'}</strong></div>
           <div><span>Current stage</span><strong>{STAGES[home.stage]}</strong></div>
@@ -248,7 +260,7 @@ export function Studio(){
     </div>}
     {tab==='issues'&&home&&<div className={s.grid}>
       <section className={s.card}>
-        <div className={s.heading}><span>Site issue log</span><small>{list.filter(i=>!i.done).length} open</small></div>
+        <div className={s.heading}><span>Site issue log</span><small>{list.filter(i=>!i.done).length} open</small><DemoInsightTag topic="issue"/></div>
         <p className={s.explain}>Create and resolve sample issues to demonstrate Scott's handoffs. Records are stored on this device, not shared across employees.</p>
         <label className={s.full}>Issue or blocker<input maxLength={160} value={issueTitle} placeholder="What needs a decision?" onChange={e=>setIssueTitle(e.target.value)} /></label>
         <div className={s.issueFilters}>
