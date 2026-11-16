@@ -115,7 +115,7 @@ export function useShell() {
 }
 
 export function Page({ title, sub, back, children }: { title: string; sub?: string; back?: string; children: ReactNode }) {
-  const { role, guide, story } = useStore();
+  const { role, guide, story, palette, setPalette } = useStore();
   const { openSearch, openRoles } = useShell();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
@@ -142,6 +142,18 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
           {sub && <p className={s.topSub}>{sub}</p>}
         </div>
         <div className={s.topActions}>
+          <label className={s.palettePicker} title="Colourway">
+            <span className={s.paletteDot} aria-hidden />
+            <span className="sr-only">Colourway</span>
+            <select aria-label="Colourway" value={palette} onChange={(e) => setPalette(e.target.value as typeof palette)}>
+              <option value="cobalt">Cobalt</option>
+              <option value="copper">Copper</option>
+              <option value="forest">Forest</option>
+              <option value="plum">Plum</option>
+              <option value="slate">Slate</option>
+              <option value="rose">Rose</option>
+            </select>
+          </label>
           <IconButton label="Search homes and tasks" onClick={openSearch}>
             <Search size={20} />
           </IconButton>
