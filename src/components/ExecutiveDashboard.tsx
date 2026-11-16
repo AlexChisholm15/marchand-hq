@@ -74,7 +74,7 @@ export function ExecutiveDashboard(){
   {name:'Live quote',detail:'Add, price, export',who:'owner',href:'/studio?tab=quote'},
   {name:'Closing',detail:'Review handoff',who:'coo',href:'/studio?tab=closeout'}
  ];
- const go=(who:RoleId,href:string)=>{setRole(who);router.push(href);};
+ const go=(index:number)=>{window.dispatchEvent(new CustomEvent<number>('marchand:start-demo',{detail:index}));};
  const openTask=(task:Task)=>{
   if(role!==task.role)setRole(task.role);
   history.replaceState(history.state,'','/?task='+encodeURIComponent(task.id));
@@ -98,7 +98,7 @@ export function ExecutiveDashboard(){
      <div className={s.heroMainLeft}><h2><strong>{homes.length}</strong><span>homes<br/>in motion<span className={s.gold}>.</span></span></h2>
        <p>{jeff?'Know what is moving, what is at risk, and what actually needs your decision.':'See the work, find the blockers and move the entire operation forward.'}</p>
        <div className={s.heroActions}><Link href="/studio?tab=decisions" className={s.primaryBtn}><Gauge size={17}/> Decision desk <ArrowUpRight size={16}/></Link>
-       <button type="button" className={s.ghostBtn} onClick={()=>setShowTour(v=>!v)} aria-expanded={showTour}><Sparkles size={16}/>{showTour?'Hide walkthrough':'Run the 5-minute demo'}<ArrowRight size={16}/></button></div>
+       <button type="button" className={s.ghostBtn} onClick={()=>{setShowTour(true);go(0);}} aria-expanded={showTour}><Sparkles size={16}/>{showTour?'Hide walkthrough':'Run the 5-minute demo'}<ArrowRight size={16}/></button></div>
      </div>
      <div className={s.heroSignal}><span className={s.signalLabel}><i/> NEXT ACTION</span><h3>{action?.title||'Nothing urgent for this role'}</h3><p>{action?((action.due<=state.today?'Due now':'Due '+fmtDate(action.due))+' · '+action.source):'Explore the decision desk for upcoming work.'}</p>
        <button type="button" onClick={()=>action?openTask(action):router.push('/studio?tab=decisions')}>{action?'Work this item':'Open decision desk'} <ArrowUpRight size={15}/></button>
@@ -112,7 +112,7 @@ export function ExecutiveDashboard(){
    </div>
   </section>
   {showTour&&<section className={s.tour}><div className={s.tourHeader}><strong>THE FIVE-MINUTE DEMO</strong><span>Each step switches roles and opens a working page</span></div>
-    <div className={s.tourSteps}>{tour.map((step,i)=><button type="button" key={i} onClick={()=>go(step.who,step.href)}><span>0{i+1} / {step.who==='owner'?'JEFF':'SCOTT'}</span><strong>{step.name}</strong><small>{step.detail}</small><ArrowUpRight size={14}/></button>)}</div>
+    <div className={s.tourSteps}>{tour.map((step,i)=><button type="button" key={i} onClick={()=>go(i)}><span>0{i+1} / {step.who==='owner'?'JEFF':'SCOTT'}</span><strong>{step.name}</strong><small>{step.detail}</small><ArrowUpRight size={14}/></button>)}</div>
   </section>}
   <div className={s.kpis}>
    <button type="button" onClick={()=>router.push('/homes')} className={s.kpi}><span>ACTIVE PORTFOLIO <Building2 size={16}/></span><strong>{homes.length}</strong><small>{sold.length} sold · {spec.length} spec</small><ArrowUpRight size={15}/></button>
