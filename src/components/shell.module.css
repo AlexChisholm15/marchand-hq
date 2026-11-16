@@ -1,6 +1,10 @@
 .app { min-height: 100dvh; }
 
 .rail { display: none; }
+.brandOn { color: var(--accent-text); }
+.brand:hover { color: var(--accent-text); }
+.mobileBrand { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 3px; font-size: 10px; font-weight: 650; color: var(--text-2); }
+@media(min-width:900px) { .mobileBrand { display: none; } }
 
 .main {
   padding: 0 var(--s4) calc(var(--nav-h) + env(safe-area-inset-bottom) + var(--s8));

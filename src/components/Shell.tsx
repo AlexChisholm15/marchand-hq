@@ -65,14 +65,14 @@ export function Shell({ children }: { children: ReactNode }) {
     <ShellCtx.Provider value={api}>
       <div className={s.app}>
         <nav className={s.rail} aria-label="Main">
-          <div className={s.brand}>
+          <Link href="/community" className={`${s.brand} ${path === '/community' ? s.brandOn : ''}`} aria-label="Marchand HQ team home" aria-current={path === '/community' ? 'page' : undefined}>
             <Logo size={28} />
             Marchand HQ
-          </div>
+          </Link>
           {nav.map((n) => {
             const Icon = ICONS[n.id];
             return (
-              <Link key={n.id} href={n.href} className={`${s.railItem} ${on === n.id ? s.railOn : ''}`} aria-current={on === n.id ? 'page' : undefined}>
+                <Link key={n.id} href={n.href} className={`${s.railItem} ${path !== '/community' && on === n.id ? s.railOn : ''}`} aria-current={path !== '/community' && on === n.id ? 'page' : undefined}>
                 <Icon size={18} aria-hidden />
                 {n.label}
               </Link>
@@ -85,7 +85,7 @@ export function Shell({ children }: { children: ReactNode }) {
           {nav.map((n) => {
             const Icon = ICONS[n.id];
             return (
-              <Link key={n.id} href={n.href} className={`${s.navItem} ${on === n.id ? s.navOn : ''}`} aria-current={on === n.id ? 'page' : undefined}>
+              <Link key={n.id} href={n.href} className={`${s.navItem} ${path !== '/community' && on === n.id ? s.navOn : ''}`} aria-current={path !== '/community' && on === n.id ? 'page' : undefined}>
                 <Icon size={22} aria-hidden strokeWidth={on === n.id ? 2.2 : 1.8} />
                 {n.label}
               </Link>
@@ -139,6 +139,7 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
           </span>
         )}
         <div className={s.topText}>
+          <Link href="/community" className={s.mobileBrand} aria-label="Marchand HQ team home"><Logo size={24} /><span>Marchand HQ</span></Link>
           <h1 className={s.topTitle}>{title}</h1>
           {sub && <p className={s.topSub}>{sub}</p>}
         </div>
