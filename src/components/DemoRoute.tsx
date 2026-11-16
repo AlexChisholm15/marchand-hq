@@ -20,14 +20,14 @@ export function DemoRoute(){
     {label:'Build a quote',desc:'Editable numbers and export',role:'owner',target:'/studio?tab=quote'},
     {label:'Closing readiness',desc:'Review the handoff',role:'coo',target:'/studio?tab=closeout'},
   ];
-  const open=(step:Step)=>{setRole(step.role);router.push(step.target)};
+  const open=(index:number)=>{window.dispatchEvent(new CustomEvent<number>('marchand:start-demo',{detail:index}));};
   return <section className={s.guide} aria-label="Jeff and Scott demo route">
     <div className={s.head}>
       <div><span className={s.label}>THE 5-MINUTE DEMO · SAMPLE DATA</span><strong>Show Jeff and Scott the decisions, not the software.</strong></div>
       <button type="button" aria-expanded={expanded} onClick={()=>setExpanded(x=>!x)}>{expanded?'Hide steps':'Show steps'}</button>
     </div>
     {expanded&&<div className={s.steps}>
-      {steps.map((step,i)=><button type="button" key={step.label} className={s.step} onClick={()=>open(step)}>
+      {steps.map((step,i)=><button type="button" key={step.label} className={s.step} onClick={()=>open(i)}>
         <small>{i+1} · {step.role==='owner'?'Jeff':'Scott'}</small>
         <strong>{step.label}</strong><span>{step.desc}</span>
       </button>)}
