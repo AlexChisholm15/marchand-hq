@@ -14,7 +14,7 @@ test('Jeff / Scott five-minute demo retains five navigable steps', () => {
     '/studio?tab=closeout'
   ]) assert.ok(dashboard.includes(destination), `Missing demo destination: ${destination}`);
   assert.match(dashboard, /Run the 5-minute demo/);
-  assert.match(dashboard, /setRole\(who\);router\.push\(href\)/);
+  assert.match(dashboard, /marchand:start-demo/);
 });
 test('floating demo assistant retains honest sample-data fallback', () => {
   const floating = read('../src/components/FloatingAsk.tsx');
