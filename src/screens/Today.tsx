@@ -13,6 +13,7 @@ import type { Task } from '@/lib/types';
 import { TaskDetail } from './TaskDetail';
 import { OpsBrief } from '@/components/OpsBrief';
 import { DemoRoute } from '@/components/DemoRoute';
+import { ExecutiveDashboard } from '@/components/ExecutiveDashboard';
 
 function useWide() {
   const [wide, setWide] = useState(false);
@@ -37,10 +38,13 @@ export function Today() {
   useEffect(() => {
     const id = new URLSearchParams(location.search).get('task');
     if (id) setSelected(id);
+    const handle = (event: Event) => setSelected((event as CustomEvent<string>).detail);
+    window.addEventListener('marchand:open-task', handle);
+    return () => window.removeEventListener('marchand:open-task', handle);
   }, []);
 
   // Keep a sensible selection on wide screens as work gets done.
-  const all = [...groups.now, ...groups.week, ...groups.done];
+  const all = state.tasks.filter((t) => t.role === role);
   const current = all.find((t) => t.id === selected) ?? null;
   useEffect(() => {
     if (!wide) return;
@@ -72,10 +76,9 @@ export function Today() {
   const greeting = r.person.split(' ')[0];
 
   return (
-    <Page title="Today" sub={`${r.person} · ${r.title}`}>
-      <DemoRoute />
-      <OpsBrief />
-      <div className={s.split}>
+    <Page title={role === 'owner' ? 'Executive' : role === 'coo' ? 'Operations' : 'Today'} sub={`${r.person} · ${r.title}`}>
+      {role === 'owner' || role === 'coo' ? <ExecutiveDashboard /> : <><DemoRoute /><OpsBrief /></>}
+      <div id="mhq-task-workflow" className={s.split}>
         <div>
           {empty ? (
             <Section title="Needs you now">
