@@ -6,19 +6,22 @@ import { derive, storyProgress } from './engine';
 import { localToday } from './format';
 
 type Theme = 'system' | 'light' | 'dark';
+export type Palette = 'cobalt' | 'copper' | 'forest' | 'plum' | 'slate' | 'rose';
+const PALETTES: Palette[] = ['cobalt','copper','forest','plum','slate','rose'];
 
 type Saved = {
   v: 6;
   events: DemoEvent[];
   role: RoleId;
   theme: Theme;
+  palette: Palette;
   whatIf: Record<string, number>;
   guide: boolean;
   welcomed: boolean;
 };
 
 const KEY = 'marchand-hq-v6';
-const FRESH: Saved = { v: 6, events: [], role: 'owner', theme: 'system', whatIf: {}, guide: true, welcomed: false };
+const FRESH: Saved = { v: 6, events: [], role: 'owner', theme: 'system', palette: 'cobalt', whatIf: {}, guide: true, welcomed: false };
 
 type Store = {
   ready: boolean;
@@ -33,6 +36,7 @@ type Store = {
   dispatch: (e: DemoEvent | DemoEvent[]) => void;
   setRole: (r: RoleId) => void;
   setTheme: (t: Theme) => void;
+  setPalette: (p: Palette) => void;
   setWhatIf: (w: Record<string, number>) => void;
   setGuide: (g: boolean) => void;
   dismissWelcome: () => void;
@@ -46,7 +50,7 @@ function load(): Saved {
     const raw = localStorage.getItem(KEY);
     if (!raw) return FRESH;
     const parsed = JSON.parse(raw) as Saved;
-    return parsed.v === 6 ? { ...FRESH, ...parsed } : FRESH;
+    return parsed.v === 6 ? { ...FRESH, ...parsed, palette: PALETTES.includes(parsed.palette) ? parsed.palette : 'cobalt' } : FRESH;
   } catch {
     return FRESH;
   }
@@ -81,6 +85,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return () => mq.removeEventListener('change', on);
   }, [saved.theme]);
 
+  useEffect(() => { document.documentElement.dataset.palette = saved.palette; }, [saved.palette]);
+
   const state = useMemo(() => derive(today, saved.events), [today, saved.events]);
 
   const dispatch = useCallback((e: DemoEvent | DemoEvent[]) => {
@@ -93,6 +99,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     events: saved.events,
     role: saved.role,
     theme: saved.theme,
+    palette: saved.palette,
     whatIf: saved.whatIf,
     guide: saved.guide,
     welcomed: saved.welcomed,
@@ -100,10 +107,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     dispatch,
     setRole: (role) => setSaved((p) => ({ ...p, role })),
     setTheme: (theme) => setSaved((p) => ({ ...p, theme })),
+    setPalette: (palette) => setSaved((p) => ({ ...p, palette })),
     setWhatIf: (whatIf) => setSaved((p) => ({ ...p, whatIf })),
     setGuide: (guide) => setSaved((p) => ({ ...p, guide })),
     dismissWelcome: () => setSaved((p) => ({ ...p, welcomed: true })),
-    reset: () => setSaved((p) => ({ ...FRESH, theme: p.theme, guide: p.guide, welcomed: true })),
+    reset: () => setSaved((p) => ({ ...FRESH, theme: p.theme, palette: p.palette, guide: p.guide, welcomed: true })),
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
