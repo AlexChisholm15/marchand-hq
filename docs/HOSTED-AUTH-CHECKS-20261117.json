@@ -1,0 +1,27 @@
+[
+  {
+    "path": "/",
+    "status": 307,
+    "location": "/login?next=%2F"
+  },
+  {
+    "path": "/community",
+    "status": 307,
+    "location": "/login?next=%2Fcommunity"
+  },
+  {
+    "path": "/studio",
+    "status": 307,
+    "location": "/login?next=%2Fstudio"
+  },
+  {
+    "path": "/money",
+    "status": 307,
+    "location": "/login?next=%2Fmoney"
+  },
+  {
+    "path": "/api/intelligence",
+    "status": 401,
+    "location": null
+  }
+]
