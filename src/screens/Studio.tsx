@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { canOpenStudio, persistDrafts } from '@/lib/demoSafety';
 import { useStore } from '@/lib/store';
 import { Page } from '@/components/Shell';
 import { finalPrice, homesFor } from '@/lib/engine';
@@ -42,14 +43,15 @@ function demoIssues(homeId:string):Issue[] {
 
 export function Studio(){
   const {state,role,setRole}=useStore();
-  const accessible=role==='owner'||role==='coo'||role==='office'||role==='pm'||role==='designer';
-  const homes=homesFor(state,accessible?role:'owner');
+  const accessible=canOpenStudio(role);
+  const homes=accessible?homesFor(state,role):[];
   const [tab,setTab]=useState<Tab>('decisions');
   const [homeId,setHomeId]=useState('');
   const [quotes,setQuotes]=useState<Record<string,QuoteLine[]>>({});
   const [issues,setIssues]=useState<Issue[]>([]);
   const [checks,setChecks]=useState<Record<string,string[]>>({});
   const [loaded,setLoaded]=useState(false);
+  const [storageError,setStorageError]=useState(false);
   const [message,setMessage]=useState('');
   const [issueTitle,setIssueTitle]=useState('');
   const [issuePriority,setIssuePriority]=useState<Issue['priority']>('Important');
@@ -64,9 +66,18 @@ export function Studio(){
     setLoaded(true);
   },[]);
   useEffect(()=>{if(!homeId||!homes.some(h=>h.id===homeId))setHomeId(homes[0]?.id||'');},[homeId,homes]);
-  useEffect(()=>{if(loaded)try{localStorage.setItem(QUOTE_KEY,JSON.stringify(quotes));}catch{/* private browsing may block storage */}},[quotes,loaded]);
-  useEffect(()=>{if(loaded)try{localStorage.setItem(ISSUE_KEY,JSON.stringify(issues));}catch{/* storage unavailable */}},[issues,loaded]);
-  useEffect(()=>{if(loaded)try{localStorage.setItem(CHECK_KEY,JSON.stringify(checks));}catch{/* storage unavailable */}},[checks,loaded]);
+  useEffect(()=>{
+    if(!loaded)return;
+    let ok=false;
+    try {
+      ok=persistDrafts(window.localStorage,[
+        [QUOTE_KEY,JSON.stringify(quotes)],
+        [ISSUE_KEY,JSON.stringify(issues)],
+        [CHECK_KEY,JSON.stringify(checks)]
+      ]);
+    } catch { /* storage accessor itself can be blocked */ }
+    setStorageError(!ok);
+  },[quotes,issues,checks,loaded]);
 
   const home=homes.find(h=>h.id===homeId)??homes[0];
   const lines=quotes[home?.id]||[];
@@ -116,14 +127,20 @@ export function Studio(){
     setIssueTitle('');setMessage('Issue added to this browser');
   };
 
+  if(!accessible)return <Page title="Project Studio" sub="Role access">
+    <p role="status">Project Studio is available only to Marchand staff roles in this demo. Switch to Jeff or Scott to continue.</p>
+    <Link href="/more">Back to More</Link>
+  </Page>;
+
   return <Page title="Project Studio" sub="Jeff + Scott · practical demo tools">
     <div className={s.intro}>
-      <div><strong>One home. Every decision connected.</strong><p>Sample projects, quotes and tasks. Drafts stay in this browser; nothing is sent to Marchand Homes.</p></div>
+      <div><strong>One home. Every decision connected.</strong><p>Sample projects, quotes and tasks. Drafts save in this browser when storage is available; nothing is sent to Marchand Homes.</p></div>
       <div className={s.lens}>
         <button type="button" onClick={()=>setRole('owner')} className={role==='owner'?s.picked:''}>Jeff</button>
         <button type="button" onClick={()=>setRole('coo')} className={role==='coo'?s.picked:''}>Scott</button>
       </div>
     </div>
+    {storageError&&<p role="alert" className={s.explain}>Browser storage is unavailable. Your sample quote, issues and checklist changes are not saved; export the quote before leaving.</p>}
     <nav className={s.tabs} aria-label="Project Studio tools">
       {TABS.map(t=><button type="button" key={t.id} aria-pressed={tab===t.id} className={tab===t.id?s.selected:''} onClick={()=>goto(t.id)}>{t.label}</button>)}
     </nav>

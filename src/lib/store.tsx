@@ -65,6 +65,7 @@ export function applyTheme(theme: Theme) {
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [saved, setSaved] = useState<Saved>(FRESH);
   const [ready, setReady] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [today] = useState(localToday);
 
   useEffect(() => {
@@ -72,10 +73,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setReady(true);
   }, []);
 
+  const persist = useCallback(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(saved));
+      setSaveFailed(false);
+    } catch {
+      setSaveFailed(true);
+    }
+  }, [saved]);
+
   useEffect(() => {
-    if (!ready) return;
-    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch { /* storage unavailable: keep in memory */ }
-  }, [saved, ready]);
+    if (ready) persist();
+  }, [persist, ready]);
 
   useEffect(() => {
     applyTheme(saved.theme);
@@ -115,7 +124,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     reset: () => setSaved((p) => ({ ...FRESH, theme: p.theme, palette: p.palette, guide: p.guide, welcomed: true })),
   };
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={value}>
+    {saveFailed && <div role="alert" style={{ position: 'sticky', top: 0, zIndex: 10000, padding: '12px 16px', background: 'var(--surface)', color: 'var(--text)', borderBottom: '2px solid currentColor' }}>
+      <strong>Changes are not saved in this browser.</strong> Keep this page open. Your demo actions and preferences may be lost when you leave.{' '}
+      <button type="button" onClick={persist}>Try saving again</button>
+    </div>}
+    {children}
+  </Ctx.Provider>;
 }
 
 export function useStore(): Store {

@@ -64,6 +64,8 @@ export function Shell({ children }: { children: ReactNode }) {
 
   const api = useMemo(() => ({ openSearch: () => setSearch(true), openRoles: () => setRoles(true) }), []);
 
+  if (path === '/login') return <>{children}</>;
+
   return (
     <ShellCtx.Provider value={api}>
       <div className={s.app}>
