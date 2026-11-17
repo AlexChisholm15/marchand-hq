@@ -119,6 +119,16 @@ Applies to any surface that can render rich content (artifacts, rendered Markdow
 - For simple questions, just answer naturally.
 - If the interface can't support visual elements, use clean text instead.
 
+## Agent handoffs
+
+- **Before starting work**: read `docs/HANDOFF.md` (if present) and this file.
+- **After finishing meaningful work**: update `docs/HANDOFF.md` — overwrite in place, don't accumulate history. Keep it short:
+  - What changed
+  - What was tested
+  - What's unfinished
+  - Current branch / PR
+  - Exact next step
+
 ## Repo-specific notes
 
 - Earliest-stage repo of the set (only `docs/LEGACY.md` exists currently). No bank doc yet — create `BUILD_BANK.md` (same status vocabulary as the other repos: Banked → Approved → Building → Tested → Deployed → Verified) when real build work starts here.
