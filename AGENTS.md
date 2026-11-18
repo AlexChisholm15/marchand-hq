@@ -2,13 +2,12 @@
 
 These rules apply to any AI agent (Claude Code, Codex, or other) working in this repository. They are permanent — follow them on every task unless the user explicitly overrides them for that task.
 
-## Workflow: Discuss → Bank → Preview → Verify → Ship
+## Workflow: Discuss → Bank → Verify → Go Live
 
-1. **Discuss** — Understand the request. Inspect existing code/docs before proposing changes. Ask only if a critical detail is genuinely missing.
+1. **Discuss** — Understand the request and recommend the simplest effective solution. Inspect existing code/docs before proposing changes. Ask only if a critical detail is genuinely missing.
 2. **Bank** — Record the proposed idea/change in this repo's bank/status doc (see "Repo-specific notes" below) before building, using that doc's status vocabulary. Banked ≠ authorized to build.
-3. **Preview** — Before shipping, show the exact diff or file content that will change. No surprise rewrites.
-4. **Verify** — Test the actual change (not just "it compiles"). State what was tested and the result. Never claim something works without checking it.
-5. **Ship** — Commit with a clear message. Do not deploy or push to production unless explicitly asked.
+3. **Verify** — Implement and test the actual change (not just "it compiles") — no routine preview approval stage is required. State what was tested and the result. Never claim something works without checking it. Commit with a clear message.
+4. **Go Live** — Deploy only when the founder explicitly authorizes it ("Go Live"), to the existing production URL, following the Protected Release Procedure below. Preserve live URLs, user data and rollback capability. After release, verify production and provide the direct URL for iPhone testing.
 
 ## Non-negotiable safety rules
 
@@ -34,13 +33,13 @@ Use the application's current version as the starting point for every change. Ne
 
 ## Commander Commands
 
-The control layer over the Discuss → Bank → Preview → Verify → Ship workflow above. Interpret these consistently:
+The control layer over the Discuss → Bank → Verify → Go Live workflow above. Interpret these consistently:
 
 - **BANK IT** — Record the idea in this project's Idea Bank (its bank doc), preserving the description, intended benefit, and context. Do not implement or deploy. Status: `BANKED`.
 - **BUILD IT** — Implement the specified scope in an isolated Testing Grounds (a feature branch and, where available, a preview deployment), preserving existing production functionality and data. Run relevant tests and prepare a reviewable Proposed Update (see below). Do not deploy to production. Status: `BUILDING` → `TESTED`.
-- **APPROVE** — Accept the specific Proposed Update for a release. Approval alone does not authorize production deployment. Status: `APPROVED`.
+- **APPROVE** — Optional: accept a specific Proposed Update for a future release. Not required before GO LIVE, and does not by itself authorize production deployment. Status: `APPROVED`.
 - **REVISE** — Return the work to Testing Grounds with the founder's requested changes, preserving previous progress and context.
-- **GO LIVE / SHIP UPDATE** — Authorize production release of the clearly identified, approved changes only. Deploy to the existing application's production environment and permanent URL. Never include unrelated or unapproved work. Verify the new version is actually live and functioning before reporting success. Status: `DEPLOYED` → `VERIFIED`.
+- **GO LIVE / SHIP UPDATE** — Authorize production release of the clearly identified, verified changes only. Deploy to the existing application's production environment and permanent URL. Never include unrelated or unverified work. Verify the new version is actually live and functioning before reporting success. Status: `DEPLOYED` → `VERIFIED`.
 
 If the release scope is ambiguous, identify the ambiguity rather than guessing.
 
