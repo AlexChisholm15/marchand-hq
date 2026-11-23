@@ -10,6 +10,16 @@ These rules apply to any AI agent (Claude Code, Codex, or other) working in this
 4. **Verify** — Test the actual change (not just "it compiles"). State what was tested and the result. Never claim something works without checking it.
 5. **Ship** — Commit with a clear message. Do not deploy or push to production unless explicitly asked.
 
+## Efficient execution & cost discipline (2026-11-22)
+
+- **Classify scope:** LIGHT = copy, styling or small UI repair; MEDIUM = focused feature or integration; HEAVY = auth, permissions, architecture, migration, financial correctness or destructive data changes. Match investigation and verification depth to risk.
+- **Spend deliberately:** use the least costly capable model and reasoning effort where the tool permits; never falsely claim a model change. Escalate for complex/high-risk work. Avoid unnecessary subagents and parallel sessions.
+- **Bound context:** inspect directly relevant files, current instructions, active changes and handoff; avoid repeating full-repository audits, loading unrelated history or rereading already-grounded material.
+- **Batch related minor fixes** into a single verified release candidate when safe. Do not start repeated deploy/test cycles for cosmetic changes.
+- **Tests stay proportional, never cosmetic:** targeted checks for LIGHT, affected-flow plus regression checks for MEDIUM, and rigorous auth/data/security testing for HEAVY. No paid AI API test calls without explicit approval.
+- **Stop when done:** satisfy the stated acceptance criteria; do not expand features, refactor nearby code, or polish unrelated areas. Report concise outcomes, tests, risks, and session cost when actual metering is available; otherwise say cost unavailable, not estimated as measured.
+- **Founder's current decision workflow:** Discuss → Bank → Verify → Go Live. A preview is optional when useful, not a mandatory review gate. No production change unless the founder explicitly says Go Live for that scope; retain all existing release safety checks, source/concurrency safeguards and rollback requirements. This newer founder workflow supersedes older preview-first wording elsewhere in this file.
+
 ## Non-negotiable safety rules
 
 - **Preserve existing code, data, and deployments.** Never delete, rewrite wholesale, or silently break working functionality.
