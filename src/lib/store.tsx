@@ -3,12 +3,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { DemoEvent, RoleId, State } from './types';
 import { derive, storyProgress } from './engine';
+import { restorePalette, type Palette } from './palettes';
 import { localToday } from './format';
 
 type Theme = 'system' | 'light' | 'dark';
-export type Palette = 'cobalt' | 'copper' | 'forest' | 'plum' | 'slate' | 'rose' | 'marchand63' | 'panther' | 'architect' | 'blackgold' | 'coastal' | 'city';
-const PALETTES: Palette[] = ['cobalt','copper','forest','plum','slate','rose','marchand63','panther','architect','blackgold','coastal','city'];
-
 type Saved = {
   v: 6;
   events: DemoEvent[];
@@ -51,7 +49,7 @@ function load(): Saved {
     const raw = localStorage.getItem(KEY);
     if (!raw) return FRESH;
     const parsed = JSON.parse(raw) as Saved;
-    return parsed.v === 6 ? { ...FRESH, ...parsed, palette: PALETTES.includes(parsed.palette) ? parsed.palette : 'cobalt' } : FRESH;
+    return parsed.v === 6 ? { ...FRESH, ...parsed, palette: restorePalette(parsed.palette) } : FRESH;
   } catch {
     return FRESH;
   }

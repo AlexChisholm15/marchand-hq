@@ -109,22 +109,6 @@ h3 { font-size: var(--fs-sm); font-weight: 500; }
   *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
 }
 
-/* Named accent palettes. All six support the existing light and dark modes. */
-:root[data-palette='cobalt'] { --accent: #315dce; --accent-text: #274ba8; --accent-weak: #eaf0ff; --on-accent: #fff; }
-:root[data-palette='copper'] { --accent: #a35b35; --accent-text: #87451f; --accent-weak: #f8eee7; --on-accent: #fff; }
-:root[data-palette='forest'] { --accent: #327d62; --accent-text: #24684f; --accent-weak: #e4f4eb; --on-accent: #fff; }
-:root[data-palette='plum'] { --accent: #8852ae; --accent-text: #753c99; --accent-weak: #f3eafb; --on-accent: #fff; }
-:root[data-palette='slate'] { --accent: #4b6681; --accent-text: #344e68; --accent-weak: #ebf0f6; --on-accent: #fff; }
-:root[data-palette='rose'] { --accent: #a84969; --accent-text: #983556; --accent-weak: #fdebf1; --on-accent: #fff; }
-:root[data-theme='dark'][data-palette='cobalt'] { --accent: #82a5ff; --accent-text: #a3bdff; --accent-weak: #202b46; --on-accent: #101e39; }
-:root[data-theme='dark'][data-palette='copper'] { --accent: #e1a279; --accent-text: #f1b993; --accent-weak: #33251e; --on-accent: #2a180e; }
-:root[data-theme='dark'][data-palette='forest'] { --accent: #77ccaa; --accent-text: #9ae0c5; --accent-weak: #18342a; --on-accent: #112b20; }
-:root[data-theme='dark'][data-palette='plum'] { --accent: #c598e5; --accent-text: #d8b7f1; --accent-weak: #2c2035; --on-accent: #25142e; }
-:root[data-theme='dark'][data-palette='slate'] { --accent: #9bb6d2; --accent-text: #b6c9df; --accent-weak: #25303e; --on-accent: #172536; }
-:root[data-theme='dark'][data-palette='rose'] { --accent: #ee95b2; --accent-text: #f7adc7; --accent-weak: #3b202d; --on-accent: #2c1220; }
-
-
-/* Recovered V5 colourways. Accents change; standard V6 layout and readable surfaces remain unchanged. */
 :root[data-palette='marchand63'] { --accent:#a87936; --accent-text:#7b5423; --accent-weak:#f5ecdf; --on-accent:#fff; }
 :root[data-palette='panther'] { --accent:#bd3542; --accent-text:#9b2936; --accent-weak:#fae8ec; --on-accent:#fff; }
 :root[data-palette='architect'] { --accent:#426b69; --accent-text:#315754; --accent-weak:#e7f0ee; --on-accent:#fff; }

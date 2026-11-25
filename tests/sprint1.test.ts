@@ -1,3 +1,4 @@
+import { COLOURWAYS, restorePalette } from '../src/lib/palettes.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -31,11 +32,18 @@ test('Studio exposes four functional workspaces',()=>{
  for(const fn of ['setIssues(','setChecks(','setLines(','exportQuote','persistDrafts'])assert.ok(src.includes(fn));
  assert.match(src,/nothing is sent to Marchand Homes/);
 });
-test('all 12 colourways remain available',()=>{
- const store=read('../src/lib/store.tsx'),nav=read('../src/components/Shell.tsx'),css=read('../src/styles/globals.css');
- for(const name of ['cobalt','copper','forest','plum','slate','rose','marchand63','panther','architect','blackgold','coastal','city']){
-  assert.ok(store.includes("'"+name+"'"));assert.ok(nav.includes('value="'+name+'"'));assert.ok(css.includes("data-palette='"+name+"'"));
+test('six colourways each support light and dark and restore saved choices',()=>{
+ const css = read('../src/styles/globals.css');
+ assert.deepEqual(COLOURWAYS.map(item => item.id), ['marchand63','panther','architect','blackgold','coastal','city']);
+ for (const {id} of COLOURWAYS) {
+  assert.equal(restorePalette(id), id);
+  assert.ok(css.includes(`:root[data-palette='${id}']`));
+  assert.ok(css.includes(`:root[data-theme='dark'][data-palette='${id}']`));
  }
+ for (const [old, current] of Object.entries({cobalt:'city', copper:'marchand63', forest:'architect', plum:'city', slate:'architect', rose:'panther'})) {
+  assert.equal(restorePalette(old), current);
+ }
+ assert.equal(restorePalette(null), 'marchand63');
 });
 test('new tools link from existing More and demo tour',()=>{
  const more=read('../src/screens/More.tsx'),demo=read('../src/components/DemoRoute.tsx');
