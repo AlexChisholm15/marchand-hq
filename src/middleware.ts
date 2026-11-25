@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE, verifyLabSession } from './lib/labAuthCrypto';
 
-const PUBLIC = ['/login', '/api/auth/login', '/api/auth/logout'];
+const PUBLIC = ['/login', '/api/auth/login', '/api/auth/logout', '/icon.svg', '/apple-icon'];
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   if (PUBLIC.includes(pathname)) return NextResponse.next();
