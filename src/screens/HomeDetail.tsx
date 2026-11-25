@@ -5,13 +5,13 @@ import s from './screens.module.css';
 import { Page } from '@/components/Shell';
 import { Empty, List, Pill, Row, Section, Sheet, StageList, Tabs, Timeline } from '@/components/ui';
 import { useStore } from '@/lib/store';
-import { approvedExtraCost, approvedExtras, finalPrice } from '@/lib/engine';
+import { approvedExtraCost, approvedExtras, finalPrice, isSuperseded } from '@/lib/engine';
 import { canSeeInternal } from '@/lib/people';
 import { STAGES } from '@/lib/seed';
 import { ASSUMPTIONS } from '@/lib/finance';
 import { daysBetween, fmtDate, fmtDateLong, money, relDue } from '@/lib/format';
 import { stageTone } from './Homes';
-import { ChangeSheetBody, changeTone, changeLabel } from './Changes';
+import { ChangeSheetBody, changeRowStatus } from './Changes';
 import { TaskDetail } from './TaskDetail';
 
 type Tab = 'overview' | 'selections' | 'changes' | 'updates' | 'money';
@@ -34,7 +34,8 @@ export function HomeDetail({ id }: { id: string }) {
   const changes = state.changes.filter((c) => c.homeId === id).sort((a, b) => (b.number ?? 99) - (a.number ?? 99));
   const selections = state.selections.filter((x) => x.homeId === id);
   const updates = state.updates.filter((u) => u.homeId === id && (internal || u.audience === 'homeowner')).sort((a, b) => b.date.localeCompare(a.date));
-  const trades = state.trades.filter((t) => t.homeId === id);
+  const trades = state.trades.filter((t) => t.homeId === id && t.status !== 'superseded');
+  const installed = state.changes.filter((c) => c.homeId === id && c.status === 'approved' && c.spec && !isSuperseded(c.id, state.changes));
   const myTasks = state.tasks.filter((t) => t.homeId === id && t.role === role && t.status === 'open');
   const fp = finalPrice(home, state.changes);
   const moved = state.closingMoves[id];
@@ -101,6 +102,18 @@ export function HomeDetail({ id }: { id: string }) {
               <List><Empty title="No updates yet." next={owner ? 'Gerry posts updates as each stage wraps up.' : 'Post one when the next stage starts.'} /></List>
             )}
           </Section>
+          {internal && installed.length > 0 && (
+            <Section title="Current approved installation" count={installed.length}>
+              <List>
+                {installed.map((c) => (
+                  <div key={c.id} className={s.update}>
+                    <div className={s.updateHead}><span>Lot {home.lot} · {c.spec!.location}</span><span>CO #{c.number} · {fmtDate(c.decidedOn!)}</span></div>
+                    <p className={s.updateNote}>{c.spec!.finish} · {c.spec!.size}</p>
+                  </div>
+                ))}
+              </List>
+            </Section>
+          )}
           {internal && trades.length > 0 && (
             <Section title="Trade readiness" count={trades.length}>
               <List>
@@ -120,12 +133,21 @@ export function HomeDetail({ id }: { id: string }) {
         <Section title="Finish selections" count={selections.length}>
           <List>
             {selections.length ? (
-              selections.map((x) => (
-                <div key={x.id} className={s.update}>
-                  <div className={s.updateHead}><span>{x.room}</span><Pill tone={x.status === 'confirmed' ? 'green' : 'amber'}>{x.status === 'confirmed' ? 'Confirmed' : 'Being finalized'}</Pill></div>
-                  <p className={s.updateNote}>{x.choice}</p>
-                </div>
-              ))
+              selections.map((x) => {
+                const revised = installed.find((c) => c.room === x.room);
+                return (
+                  <div key={x.id} className={s.update}>
+                    <div className={s.updateHead}><span>{x.room}</span><Pill tone={x.status === 'confirmed' ? 'green' : 'amber'}>{x.status === 'confirmed' ? 'Confirmed' : 'Being finalized'}</Pill></div>
+                    <p className={s.updateNote}>{revised ? <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{x.choice}</span> : x.choice}</p>
+                    {revised && (
+                      <p className={s.updateNote}>
+                        <Pill tone="accent">Revised · CO #{revised.number}</Pill>{' '}
+                        {revised.spec!.finish} · {revised.spec!.size} · {revised.spec!.location}
+                      </p>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <Empty title="Selections are on file." next={`${home.designer} keeps the full list. Changes show in the Changes tab.`} />
             )}
@@ -145,21 +167,40 @@ export function HomeDetail({ id }: { id: string }) {
           <Section title="Change orders" count={changes.length}>
             <List>
               {changes.length ? (
-                changes.map((c) => (
-                  <Row
-                    key={c.id}
-                    title={`${c.number ? `CO #${c.number} · ` : ''}${c.title}`}
-                    meta={c.room}
-                    side={<Pill tone={changeTone(c.status)}>{changeLabel(c.status)}</Pill>}
-                    sideSub={<span className="num">{c.price !== null ? money(c.price) : 'Not priced'}</span>}
-                    onClick={() => setOpenChange(c.id)}
-                  />
-                ))
+                changes.map((c) => {
+                  const disp = changeRowStatus(c, state.changes);
+                  return (
+                    <Row
+                      key={c.id}
+                      title={`${c.number ? `CO #${c.number} · ` : ''}${c.title}`}
+                      meta={c.room}
+                      side={<Pill tone={disp.tone}>{disp.label}</Pill>}
+                      sideSub={<span className="num">{c.price !== null ? money(c.price) : 'Not priced'}</span>}
+                      onClick={() => setOpenChange(c.id)}
+                    />
+                  );
+                })
               ) : (
                 <Empty title="No changes yet." next="Requests from the buyer show up here." />
               )}
             </List>
           </Section>
+          {internal && (
+            <Section title="History" count={state.activity.filter((a) => a.homeId === id).length}>
+              <List>
+                {state.activity.filter((a) => a.homeId === id).length ? (
+                  state.activity.filter((a) => a.homeId === id).map((a) => (
+                    <div key={a.id} className={s.activity}>
+                      {a.who} {a.text}
+                      <span>{fmtDate(a.at)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <Empty title="No history yet." next="Actions on this home's changes show up here." />
+                )}
+              </List>
+            </Section>
+          )}
         </>
       )}
 

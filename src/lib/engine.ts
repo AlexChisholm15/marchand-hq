@@ -5,6 +5,11 @@ import {
   AT_RISK_HOME_ID, SHOWER_CHANGE, createChanges, createHomes, createSelections, createTasks, createTrades, createUpdates,
 } from './seed.ts';
 
+/** Which trade/company a change's install work routes to, by room. Falls back to a generic site trade. */
+const TRADE_FOR_ROOM: Record<string, { trade: string; company: string }> = {
+  'Primary ensuite': { trade: 'Plumbing', company: 'Harbourview Plumbing' },
+};
+
 const WHO: Record<DemoEvent['type'], string> = {
   'selections.confirmed': STAFF.designerA,
   'change.requested': DEMO_BUYER,
@@ -74,9 +79,15 @@ export function derive(today: string, events: DemoEvent[]): State {
       }
       case 'change.requested': {
         if (changeById.has(e.changeId)) break;
+        // Only honour a supersede link that names a real change on this same
+        // home (never itself): an invalid or cross-home reference is dropped
+        // rather than silently corrupting another home's thread.
+        const target = e.supersedes ? changeById.get(e.supersedes) : undefined;
+        const supersedes = target && target.homeId === e.homeId && target.id !== e.changeId ? target.id : null;
         const c: Change = {
           id: e.changeId, homeId: e.homeId, number: null, title: e.title, detail: e.detail, room: e.room,
           status: 'requested', price: null, cost: null, requestedOn: e.at, pricedOn: null, decidedOn: null,
+          supersedes, spec: null, lines: null,
         };
         changes.push(c);
         changeById.set(c.id, c);
@@ -95,6 +106,8 @@ export function derive(today: string, events: DemoEvent[]): State {
         c.price = e.price;
         c.cost = e.cost;
         c.pricedOn = e.at;
+        c.spec = e.spec ?? null;
+        c.lines = e.lines ?? null;
         complete(`price-${c.id}`, e.at);
         if (c.homeId === DEMO_HOME_ID) {
           addTask({
@@ -120,21 +133,54 @@ export function derive(today: string, events: DemoEvent[]): State {
         c.status = 'approved';
         c.number = Math.max(0, ...changes.filter((x) => x.homeId === c.homeId && x.number).map((x) => x.number!)) + 1;
         const home = homeById.get(c.homeId)!;
+
+        // A revision that supersedes an earlier approved change: find whichever
+        // thread member was actually active just before this approval (which may
+        // be a sibling revision, not literally this change's own `supersedes`
+        // target, if two revisions were priced against the same original before
+        // either was decided). Close out that member's still-open follow-on
+        // tasks so nothing is left duplicated, and retire its trade item.
+        const revises = priorActiveInThread(c.id, changes);
+        const revisesReconciled = revises ? taskById.get(`adjust-${revises.id}`)?.status === 'done' : false;
+        if (revises) {
+          complete(`adjust-${revises.id}`, e.at);
+          complete(`trade-task-${revises.id}`, e.at);
+          complete(`amend-${revises.id}`, e.at);
+          complete(`sign-${revises.id}`, e.at);
+          complete(`ready-${revises.id}`, e.at);
+          const priorTrade = trades.find((x) => x.changeId === revises.id);
+          if (priorTrade) priorTrade.status = 'superseded';
+        }
+
+        const tradeInfo = TRADE_FOR_ROOM[c.room] ?? { trade: 'Site trades', company: home.pm };
+        const scope = c.spec
+          ? `${c.spec.finish}, ${c.spec.size}, at ${c.spec.location}. Confirm before drywall.`
+          : `${c.title}. Confirm scope with ${tradeInfo.trade.toLowerCase()} before drywall.`;
         const trade: TradeItem = {
-          id: `trade-${c.id}`, homeId: c.homeId, trade: 'Plumbing', company: 'Harbourview Plumbing',
-          scope: 'Move drain for linear drain and set curbless pan before drywall', neededBy: addDays(today, 6),
-          status: 'waiting', changeId: c.id,
+          id: `trade-${c.id}`, homeId: c.homeId, trade: tradeInfo.trade, company: tradeInfo.company,
+          scope, neededBy: addDays(today, 6), status: 'waiting', changeId: c.id,
         };
         trades.push(trade);
         const final = finalPrice(home, changes);
+        // Only frame this as a delta when the office actually recorded the
+        // prior adjustment; otherwise there is nothing on record to diff
+        // against, so the office must record the full current price.
+        const delta = revises && revisesReconciled ? (c.price ?? 0) - (revises.price ?? 0) : null;
+        const adjustDetail = revises
+          ? delta !== null
+            ? `CO #${c.number} revises CO #${revises.number ?? '—'}: ${c.title.toLowerCase()}. Delta ${delta >= 0 ? '+' : ''}${money(delta)} from the ${money(revises.price ?? 0)} already recorded. Final price is now ${money(final)}. ${money(home.deposit)} deposit on file. Balance due at closing ${money(final - home.deposit)}.`
+            : `CO #${c.number} revises CO #${revises.number ?? '—'}: ${c.title.toLowerCase()}. Not yet recorded — record the full final price. Final price is now ${money(final)}. ${money(home.deposit)} deposit on file. Balance due at closing ${money(final - home.deposit)}.`
+          : `Final price is now ${money(final)}. ${money(home.deposit)} deposit on file. Balance due at closing ${money(final - home.deposit)}.`;
         addTask({
           id: `adjust-${c.id}`, role: 'office', homeId: c.homeId, title: `Update closing adjustments: CO #${c.number}`,
-          detail: `Final price is now ${money(final)}. $20,000 deposit on file. Balance due at closing ${money(final - home.deposit)}.`,
+          detail: adjustDetail,
           due: today, source: 'Closing', owner: STAFF.business, action: 'update-adjustments', ref: c.id,
         });
         addTask({
-          id: `trade-task-${c.id}`, role: 'pm', homeId: c.homeId, title: 'Confirm plumber before drywall',
-          detail: `CO #${c.number} approved: ${c.title.toLowerCase()}. Drain must move before drywall.`,
+          id: `trade-task-${c.id}`, role: 'pm', homeId: c.homeId, title: `Confirm ${tradeInfo.trade.toLowerCase()} before drywall`,
+          detail: revises
+            ? `CO #${c.number} revises CO #${revises.number ?? '—'}: ${c.title.toLowerCase()}. ${scope}`
+            : `CO #${c.number} approved: ${c.title.toLowerCase()}. ${scope}`,
           due: addDays(today, 2), source: 'Trades', owner: STAFF.pm, action: 'confirm-trade', ref: trade.id,
         });
         addTask({
@@ -143,8 +189,8 @@ export function derive(today: string, events: DemoEvent[]): State {
           due: addDays(today, 1), source: 'Change order', owner: STAFF.realtor, action: 'prepare-amendment', ref: c.id,
         });
         addTask({
-          id: `ready-${c.id}`, role: 'coo', homeId: c.homeId, title: `Trade readiness: CO #${c.number} shower`,
-          detail: 'Plumber must move the drain before drywall. Gerry is confirming.',
+          id: `ready-${c.id}`, role: 'coo', homeId: c.homeId, title: `Trade readiness: CO #${c.number} ${c.room.toLowerCase()}`,
+          detail: `${tradeInfo.trade} must finish before drywall. ${STAFF.pm} is confirming.`,
           due: addDays(today, 2), source: 'Trades', owner: STAFF.coo, action: 'done', ref: trade.id,
         });
         log(e, `approved CO #${c.number}: ${c.title.toLowerCase()} (${money(c.price!)})`, c.homeId);
@@ -153,6 +199,8 @@ export function derive(today: string, events: DemoEvent[]): State {
       case 'adjustments.updated': {
         const c = changeById.get(e.changeId);
         if (!c) break;
+        const task = taskById.get(`adjust-${c.id}`);
+        if (!task || task.status === 'done') break; // already reconciled (or retired by a later revision): idempotent no-op
         complete(`adjust-${c.id}`, e.at);
         log(e, `updated closing adjustments for ${lot(c.homeId)}`, c.homeId);
         break;
@@ -164,9 +212,10 @@ export function derive(today: string, events: DemoEvent[]): State {
         complete(`trade-task-${tr.changeId}`, e.at);
         const ready = taskById.get(`ready-${tr.changeId}`);
         if (ready && ready.status === 'open') ready.detail = `${tr.company} confirmed. Ready before drywall.`;
+        const trChange = tr.changeId ? changeById.get(tr.changeId) : undefined;
         const u: Update = {
           id: `u-${tr.id}`, homeId: tr.homeId, date: e.at, stage: 'Rough-ins',
-          note: 'Your shower upgrade is booked. The plumber moves the drain this week, before drywall.',
+          note: `Your ${(trChange?.title ?? 'install').toLowerCase()} is booked. ${tr.company} confirmed; work proceeds this week, before drywall.`,
           by: STAFF.pm, audience: 'homeowner',
         };
         updates.push(u);
@@ -214,11 +263,65 @@ export function derive(today: string, events: DemoEvent[]): State {
   return { today, homes, selections, changes, tasks, trades, updates, activity: activity.reverse(), closingMoves };
 }
 
+/**
+ * The first change in this revision thread: follow `supersedes` links back
+ * to their origin. Every sibling revision of the same original request
+ * shares one root, regardless of which specific predecessor each one names.
+ */
+export function threadRootId(changeId: string, changes: Change[]): string {
+  const byId = new Map(changes.map((c) => [c.id, c]));
+  const seen = new Set<string>();
+  let cur = byId.get(changeId);
+  while (cur?.supersedes && byId.has(cur.supersedes) && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    cur = byId.get(cur.supersedes)!;
+  }
+  return cur?.id ?? changeId;
+}
+
+export const threadMembers = (rootId: string, changes: Change[]) =>
+  changes.filter((c) => threadRootId(c.id, changes) === rootId);
+
+/** The currently active (approved, non-superseded) member of this change's revision thread, if any. */
+export function activeThreadHead(changeId: string, changes: Change[]): Change | undefined {
+  const root = threadRootId(changeId, changes);
+  return threadMembers(root, changes).find((m) => m.status === 'approved' && !isSuperseded(m.id, changes));
+}
+
+/**
+ * True once ANY other approved change in the same revision thread was
+ * approved later (a higher CO number), whether or not that later change
+ * names this one directly in its `supersedes` link. This keeps exactly one
+ * active approved revision per thread even when two sibling revisions were
+ * both priced against the same original before either was decided.
+ */
+export function isSuperseded(changeId: string, changes: Change[]): boolean {
+  const c = changes.find((x) => x.id === changeId);
+  if (!c || c.status !== 'approved' || c.number == null) return false;
+  const root = threadRootId(changeId, changes);
+  return threadMembers(root, changes).some(
+    (m) => m.id !== c.id && m.status === 'approved' && m.number != null && m.number > c.number!,
+  );
+}
+
+/** The thread member that was the active approved revision immediately before `changeId`'s own approval, if any. */
+function priorActiveInThread(changeId: string, changes: Change[]): Change | undefined {
+  const c = changes.find((x) => x.id === changeId)!;
+  const root = threadRootId(changeId, changes);
+  return threadMembers(root, changes)
+    .filter((m) => m.id !== c.id && m.status === 'approved' && m.number != null)
+    .sort((a, b) => (b.number! - a.number!))[0];
+}
+
+/** The single current (non-superseded) approved change for each request thread on a home. */
+export const activeApprovedChanges = (homeId: string, changes: Change[]) =>
+  changes.filter((c) => c.homeId === homeId && c.status === 'approved' && !isSuperseded(c.id, changes));
+
 export const approvedExtras = (homeId: string, changes: Change[]) =>
-  changes.filter((c) => c.homeId === homeId && c.status === 'approved').reduce((n, c) => n + (c.price ?? 0), 0);
+  activeApprovedChanges(homeId, changes).reduce((n, c) => n + (c.price ?? 0), 0);
 
 export const approvedExtraCost = (homeId: string, changes: Change[]) =>
-  changes.filter((c) => c.homeId === homeId && c.status === 'approved').reduce((n, c) => n + (c.cost ?? 0), 0);
+  activeApprovedChanges(homeId, changes).reduce((n, c) => n + (c.cost ?? 0), 0);
 
 export const finalPrice = (h: Home, changes: Change[]) =>
   (h.status === 'presold' ? h.contractPrice : h.listPrice) + approvedExtras(h.id, changes);
