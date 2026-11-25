@@ -65,8 +65,13 @@ export function Studio(){
   const [designCost,setDesignCost]=useState('');
 
   useEffect(()=>{
-    const next=new URLSearchParams(location.search).get('tab');
+    const qp=new URLSearchParams(location.search);
+    const next=qp.get('tab');
     if(TABS.some(t=>t.id===next))setTab(next as Tab);
+    const qHome=qp.get('home');
+    if(qHome)setHomeId(qHome);
+    const qLink=qp.get('link');
+    if(qLink)setLinkChoice(qLink);
     setQuotes(readSaved(QUOTE_KEY,{}));
     setIssues(readSaved(ISSUE_KEY,demoIssues('h01')));
     setChecks(readSaved(CHECK_KEY,{}));

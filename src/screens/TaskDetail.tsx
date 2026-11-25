@@ -88,8 +88,15 @@ export function PriceForm({ change, onDone }: { change: Change; onDone?: () => v
 export function ApproveBlock({ change, home, onDone }: { change: Change; home: Home; onDone?: () => void }) {
   const { dispatch, state } = useStore();
   const now = finalPrice(home, state.changes);
+  const revises = change.supersedes ? state.changes.find((c) => c.id === change.supersedes) : undefined;
   return (
     <>
+      {revises && (
+        <p className={s.note}>This replaces {revises.number ? `CO #${revises.number}` : revises.title}{revises.price !== null ? ` (${money(revises.price)})` : ''} if you approve it.</p>
+      )}
+      {change.spec && (
+        <KV rows={[['Install spec', `${change.spec.finish} · ${change.spec.size} · ${change.spec.location}`]]} />
+      )}
       <KV
         rows={[
           ['This change', money(change.price ?? 0), 'strong'],
@@ -185,7 +192,23 @@ export function TaskDetail({ task, onDone }: { task: Task; onDone?: () => void }
         body = <RequestBlock homeId={task.ref!} onDone={onDone} />;
         break;
       case 'price-change':
-        if (change) body = <><div className={s.quote}>{change.title}{change.detail ? `. ${change.detail}` : ''}</div><PriceForm change={change} onDone={onDone} /></>;
+        if (change) {
+          body = (
+            <>
+              <div className={s.quote}>{change.title}{change.detail ? `. ${change.detail}` : ''}</div>
+              <div className={s.actions}>
+                <Button
+                  variant="primary"
+                  onClick={() => { onDone?.(); router.push(`/studio?tab=quote&home=${change.homeId}&link=${change.id}`); }}
+                >
+                  Build a linked quote in Quote Studio
+                </Button>
+              </div>
+              <p className={s.note}>Or price it directly, without a structured install spec:</p>
+              <PriceForm change={change} onDone={onDone} />
+            </>
+          );
+        }
         break;
       case 'approve-change':
         if (change && home) body = <ApproveBlock change={change} home={home} onDone={onDone} />;

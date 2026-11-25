@@ -5,7 +5,7 @@ import s from './screens.module.css';
 import { Page } from '@/components/Shell';
 import { Button, Empty, List, Pill, Row, Section, Sheet, Tabs, type Tone } from '@/components/ui';
 import { useStore } from '@/lib/store';
-import { changesFor, finalPrice, isSuperseded } from '@/lib/engine';
+import { activeThreadHead, changesFor, finalPrice, isSuperseded } from '@/lib/engine';
 import { DEMO_HOME_ID, canSeeInternal } from '@/lib/people';
 import { fmtDate, lotLabel, money } from '@/lib/format';
 import type { Change, ChangeStatus } from '@/lib/types';
@@ -14,12 +14,21 @@ import { ApproveBlock, HomeLink, PriceForm, RequestBlock } from './TaskDetail';
 export const changeTone = (st: ChangeStatus): Tone => ({ requested: 'amber', priced: 'accent', approved: 'green', declined: 'neutral' })[st] as Tone;
 export const changeLabel = (st: ChangeStatus) => ({ requested: 'Needs price', priced: 'Awaiting buyer', approved: 'Approved', declined: 'Declined' })[st];
 
+/** Status pill for a change in a list row: a superseded approval is labelled as such, not shown as a plain "Approved". */
+export function changeRowStatus(c: Change, changes: Change[]): { tone: Tone; label: string } {
+  if (c.status === 'approved' && isSuperseded(c.id, changes)) {
+    const head = activeThreadHead(c.id, changes);
+    return { tone: 'neutral', label: head?.number ? `Superseded by CO #${head.number}` : 'Superseded' };
+  }
+  return { tone: changeTone(c.status), label: changeLabel(c.status) };
+}
+
 export function ChangeSheetBody({ change, onDone }: { change: Change; onDone?: () => void }) {
   const { state, role } = useStore();
   const home = state.homes.find((h) => h.id === change.homeId)!;
   const internal = canSeeInternal(role);
   const revises = change.supersedes ? state.changes.find((c) => c.id === change.supersedes) : undefined;
-  const supersededBy = state.changes.find((c) => c.supersedes === change.id && c.status === 'approved');
+  const supersededBy = change.status === 'approved' && isSuperseded(change.id, state.changes) ? activeThreadHead(change.id, state.changes) : undefined;
   const nextTask = state.tasks.find((t) => t.ref === change.id && t.status === 'open');
   return (
     <div>
@@ -74,12 +83,13 @@ export function Changes() {
           {list.length ? (
             list.map((c) => {
               const h = state.homes.find((x) => x.id === c.homeId)!;
+              const disp = changeRowStatus(c, state.changes);
               return (
                 <Row
                   key={c.id}
                   title={`${c.number ? `CO #${c.number} · ` : ''}${c.title}`}
                   meta={homeowner ? c.room : `${lotLabel(h)} · ${h.buyer ?? 'Spec'} · ${c.room}`}
-                  side={<Pill tone={changeTone(c.status)}>{changeLabel(c.status)}</Pill>}
+                  side={<Pill tone={disp.tone}>{disp.label}</Pill>}
                   sideSub={<span className="num">{c.price !== null ? money(c.price) : fmtDate(c.requestedOn)}</span>}
                   onClick={() => setOpen(c.id)}
                 />

@@ -11,7 +11,7 @@ import { STAGES } from '@/lib/seed';
 import { ASSUMPTIONS } from '@/lib/finance';
 import { daysBetween, fmtDate, fmtDateLong, money, relDue } from '@/lib/format';
 import { stageTone } from './Homes';
-import { ChangeSheetBody, changeTone, changeLabel } from './Changes';
+import { ChangeSheetBody, changeRowStatus } from './Changes';
 import { TaskDetail } from './TaskDetail';
 
 type Tab = 'overview' | 'selections' | 'changes' | 'updates' | 'money';
@@ -133,12 +133,21 @@ export function HomeDetail({ id }: { id: string }) {
         <Section title="Finish selections" count={selections.length}>
           <List>
             {selections.length ? (
-              selections.map((x) => (
-                <div key={x.id} className={s.update}>
-                  <div className={s.updateHead}><span>{x.room}</span><Pill tone={x.status === 'confirmed' ? 'green' : 'amber'}>{x.status === 'confirmed' ? 'Confirmed' : 'Being finalized'}</Pill></div>
-                  <p className={s.updateNote}>{x.choice}</p>
-                </div>
-              ))
+              selections.map((x) => {
+                const revised = installed.find((c) => c.room === x.room);
+                return (
+                  <div key={x.id} className={s.update}>
+                    <div className={s.updateHead}><span>{x.room}</span><Pill tone={x.status === 'confirmed' ? 'green' : 'amber'}>{x.status === 'confirmed' ? 'Confirmed' : 'Being finalized'}</Pill></div>
+                    <p className={s.updateNote}>{revised ? <span style={{ textDecoration: 'line-through', opacity: 0.6 }}>{x.choice}</span> : x.choice}</p>
+                    {revised && (
+                      <p className={s.updateNote}>
+                        <Pill tone="accent">Revised · CO #{revised.number}</Pill>{' '}
+                        {revised.spec!.finish} · {revised.spec!.size} · {revised.spec!.location}
+                      </p>
+                    )}
+                  </div>
+                );
+              })
             ) : (
               <Empty title="Selections are on file." next={`${home.designer} keeps the full list. Changes show in the Changes tab.`} />
             )}
@@ -158,16 +167,19 @@ export function HomeDetail({ id }: { id: string }) {
           <Section title="Change orders" count={changes.length}>
             <List>
               {changes.length ? (
-                changes.map((c) => (
-                  <Row
-                    key={c.id}
-                    title={`${c.number ? `CO #${c.number} · ` : ''}${c.title}`}
-                    meta={c.room}
-                    side={<Pill tone={changeTone(c.status)}>{changeLabel(c.status)}</Pill>}
-                    sideSub={<span className="num">{c.price !== null ? money(c.price) : 'Not priced'}</span>}
-                    onClick={() => setOpenChange(c.id)}
-                  />
-                ))
+                changes.map((c) => {
+                  const disp = changeRowStatus(c, state.changes);
+                  return (
+                    <Row
+                      key={c.id}
+                      title={`${c.number ? `CO #${c.number} · ` : ''}${c.title}`}
+                      meta={c.room}
+                      side={<Pill tone={disp.tone}>{disp.label}</Pill>}
+                      sideSub={<span className="num">{c.price !== null ? money(c.price) : 'Not priced'}</span>}
+                      onClick={() => setOpenChange(c.id)}
+                    />
+                  );
+                })
               ) : (
                 <Empty title="No changes yet." next="Requests from the buyer show up here." />
               )}
