@@ -47,6 +47,15 @@ export type Selection = {
 
 export type ChangeStatus = 'requested' | 'priced' | 'approved' | 'declined';
 
+/** Install-relevant spec captured once by the designer, carried through to the PM. */
+export type InstallSpec = {
+  finish: string;
+  size: string;
+  location: string;
+};
+
+export type ChangeQuoteLine = { id: string; label: string; qty: number; unit: number };
+
 export type Change = {
   id: string;
   homeId: string;
@@ -60,6 +69,12 @@ export type Change = {
   requestedOn: string;
   pricedOn: string | null;
   decidedOn: string | null;
+  /** Set when this change is a later revision that replaces an earlier one. */
+  supersedes?: string | null;
+  /** Structured install detail entered once alongside the Quote Studio price. */
+  spec?: InstallSpec | null;
+  /** The Quote Studio lines this change's price was built from. */
+  lines?: ChangeQuoteLine[] | null;
 };
 
 export type TaskSource = 'Selections' | 'Change order' | 'Site' | 'Office' | 'Closing' | 'Sales' | 'Trades' | 'Cash';
@@ -99,7 +114,7 @@ export type TradeItem = {
   company: string;
   scope: string;
   neededBy: string;
-  status: 'waiting' | 'ready';
+  status: 'waiting' | 'ready' | 'superseded';
   changeId: string | null;
 };
 
@@ -115,8 +130,8 @@ export type Update = {
 
 export type DemoEvent =
   | { type: 'selections.confirmed'; homeId: string; at: string }
-  | { type: 'change.requested'; changeId: string; homeId: string; title: string; detail: string; room: string; at: string }
-  | { type: 'change.priced'; changeId: string; price: number; cost: number; at: string }
+  | { type: 'change.requested'; changeId: string; homeId: string; title: string; detail: string; room: string; supersedes?: string | null; at: string }
+  | { type: 'change.priced'; changeId: string; price: number; cost: number; spec?: InstallSpec; lines?: ChangeQuoteLine[]; at: string }
   | { type: 'change.approved'; changeId: string; at: string }
   | { type: 'change.declined'; changeId: string; at: string }
   | { type: 'amendment.sent'; changeId: string; at: string }

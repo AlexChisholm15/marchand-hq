@@ -196,6 +196,7 @@ export function TaskDetail({ task, onDone }: { task: Task; onDone?: () => void }
           body = (
             <KV
               rows={[
+                ['Source change', `${change.number ? `CO #${change.number} · ` : ''}${change.title}`],
                 ['Contract price', money(home.contractPrice)],
                 [`Change orders ${coRange(state, home.id)}`, money(approvedExtras(home.id, state.changes))],
                 ['Final price', money(fp), 'strong'],
@@ -210,8 +211,24 @@ export function TaskDetail({ task, onDone }: { task: Task; onDone?: () => void }
         break;
       case 'confirm-trade':
         if (trade) {
-          body = <KV rows={[['Trade', `${trade.trade} · ${trade.company}`], ['Work', trade.scope], ['Needed by', fmtDate(trade.neededBy, true)], ['Status', trade.status === 'ready' ? 'Ready' : 'Waiting on confirmation']]} />;
-          actions = <><Button variant="primary" onClick={() => fire({ type: 'trade.confirmed', tradeId: trade.id, at })}>Plumber confirmed</Button>{openHome}</>;
+          const tradeChange = trade.changeId ? state.changes.find((c) => c.id === trade.changeId) : null;
+          body = (
+            <>
+              {tradeChange?.spec && home && (
+                <KV
+                  rows={[
+                    ['Lot', `Lot ${home.lot}`],
+                    ['Location', tradeChange.spec.location],
+                    ['Approved spec', `${tradeChange.spec.finish} · ${tradeChange.spec.size}`],
+                    ['Revision', tradeChange.number ? `CO #${tradeChange.number}` : 'Not yet numbered'],
+                    ['Approved', tradeChange.decidedOn ? fmtDate(tradeChange.decidedOn) : '—'],
+                  ]}
+                />
+              )}
+              <KV rows={[['Trade', `${trade.trade} · ${trade.company}`], ['Work', trade.scope], ['Needed by', fmtDate(trade.neededBy, true)], ['Status', trade.status === 'ready' ? 'Ready' : 'Waiting on confirmation']]} />
+            </>
+          );
+          actions = <><Button variant="primary" onClick={() => fire({ type: 'trade.confirmed', tradeId: trade.id, at })}>{trade.trade} confirmed</Button>{openHome}</>;
         }
         break;
       case 'prepare-amendment':

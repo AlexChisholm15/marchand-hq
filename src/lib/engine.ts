@@ -5,6 +5,11 @@ import {
   AT_RISK_HOME_ID, SHOWER_CHANGE, createChanges, createHomes, createSelections, createTasks, createTrades, createUpdates,
 } from './seed.ts';
 
+/** Which trade/company a change's install work routes to, by room. Falls back to a generic site trade. */
+const TRADE_FOR_ROOM: Record<string, { trade: string; company: string }> = {
+  'Primary ensuite': { trade: 'Plumbing', company: 'Harbourview Plumbing' },
+};
+
 const WHO: Record<DemoEvent['type'], string> = {
   'selections.confirmed': STAFF.designerA,
   'change.requested': DEMO_BUYER,
@@ -77,6 +82,7 @@ export function derive(today: string, events: DemoEvent[]): State {
         const c: Change = {
           id: e.changeId, homeId: e.homeId, number: null, title: e.title, detail: e.detail, room: e.room,
           status: 'requested', price: null, cost: null, requestedOn: e.at, pricedOn: null, decidedOn: null,
+          supersedes: e.supersedes ?? null, spec: null, lines: null,
         };
         changes.push(c);
         changeById.set(c.id, c);
@@ -95,6 +101,8 @@ export function derive(today: string, events: DemoEvent[]): State {
         c.price = e.price;
         c.cost = e.cost;
         c.pricedOn = e.at;
+        c.spec = e.spec ?? null;
+        c.lines = e.lines ?? null;
         complete(`price-${c.id}`, e.at);
         if (c.homeId === DEMO_HOME_ID) {
           addTask({
@@ -120,21 +128,46 @@ export function derive(today: string, events: DemoEvent[]): State {
         c.status = 'approved';
         c.number = Math.max(0, ...changes.filter((x) => x.homeId === c.homeId && x.number).map((x) => x.number!)) + 1;
         const home = homeById.get(c.homeId)!;
+
+        // A revision that supersedes an earlier approved change: close out that
+        // thread's still-open follow-on tasks so nothing is left duplicated, and
+        // retire (don't delete) its trade item so the PM sees one current item.
+        const prev = c.supersedes ? changeById.get(c.supersedes) : undefined;
+        const revises = prev && prev.status === 'approved' ? prev : undefined;
+        if (revises) {
+          complete(`adjust-${revises.id}`, e.at);
+          complete(`trade-task-${revises.id}`, e.at);
+          complete(`amend-${revises.id}`, e.at);
+          complete(`sign-${revises.id}`, e.at);
+          complete(`ready-${revises.id}`, e.at);
+          const priorTrade = trades.find((x) => x.changeId === revises.id);
+          if (priorTrade) priorTrade.status = 'superseded';
+        }
+
+        const tradeInfo = TRADE_FOR_ROOM[c.room] ?? { trade: 'Site trades', company: home.pm };
+        const scope = c.spec
+          ? `${c.spec.finish}, ${c.spec.size}, at ${c.spec.location}. Confirm before drywall.`
+          : 'Move drain for linear drain and set curbless pan before drywall';
         const trade: TradeItem = {
-          id: `trade-${c.id}`, homeId: c.homeId, trade: 'Plumbing', company: 'Harbourview Plumbing',
-          scope: 'Move drain for linear drain and set curbless pan before drywall', neededBy: addDays(today, 6),
-          status: 'waiting', changeId: c.id,
+          id: `trade-${c.id}`, homeId: c.homeId, trade: tradeInfo.trade, company: tradeInfo.company,
+          scope, neededBy: addDays(today, 6), status: 'waiting', changeId: c.id,
         };
         trades.push(trade);
         const final = finalPrice(home, changes);
+        const delta = revises ? (c.price ?? 0) - (revises.price ?? 0) : null;
+        const adjustDetail = revises
+          ? `CO #${c.number} revises CO #${revises.number ?? '—'}: ${c.title.toLowerCase()}. Delta ${delta! >= 0 ? '+' : ''}${money(delta!)} from the previously recorded adjustment. Final price is now ${money(final)}. $20,000 deposit on file. Balance due at closing ${money(final - home.deposit)}.`
+          : `Final price is now ${money(final)}. $20,000 deposit on file. Balance due at closing ${money(final - home.deposit)}.`;
         addTask({
           id: `adjust-${c.id}`, role: 'office', homeId: c.homeId, title: `Update closing adjustments: CO #${c.number}`,
-          detail: `Final price is now ${money(final)}. $20,000 deposit on file. Balance due at closing ${money(final - home.deposit)}.`,
+          detail: adjustDetail,
           due: today, source: 'Closing', owner: STAFF.business, action: 'update-adjustments', ref: c.id,
         });
         addTask({
-          id: `trade-task-${c.id}`, role: 'pm', homeId: c.homeId, title: 'Confirm plumber before drywall',
-          detail: `CO #${c.number} approved: ${c.title.toLowerCase()}. Drain must move before drywall.`,
+          id: `trade-task-${c.id}`, role: 'pm', homeId: c.homeId, title: `Confirm ${tradeInfo.trade.toLowerCase()} before drywall`,
+          detail: revises
+            ? `CO #${c.number} revises CO #${revises.number ?? '—'}: ${c.title.toLowerCase()}. ${scope}`
+            : `CO #${c.number} approved: ${c.title.toLowerCase()}. ${scope}`,
           due: addDays(today, 2), source: 'Trades', owner: STAFF.pm, action: 'confirm-trade', ref: trade.id,
         });
         addTask({
@@ -143,8 +176,8 @@ export function derive(today: string, events: DemoEvent[]): State {
           due: addDays(today, 1), source: 'Change order', owner: STAFF.realtor, action: 'prepare-amendment', ref: c.id,
         });
         addTask({
-          id: `ready-${c.id}`, role: 'coo', homeId: c.homeId, title: `Trade readiness: CO #${c.number} shower`,
-          detail: 'Plumber must move the drain before drywall. Gerry is confirming.',
+          id: `ready-${c.id}`, role: 'coo', homeId: c.homeId, title: `Trade readiness: CO #${c.number} ${c.room.toLowerCase()}`,
+          detail: `${tradeInfo.trade} must finish before drywall. ${STAFF.pm} is confirming.`,
           due: addDays(today, 2), source: 'Trades', owner: STAFF.coo, action: 'done', ref: trade.id,
         });
         log(e, `approved CO #${c.number}: ${c.title.toLowerCase()} (${money(c.price!)})`, c.homeId);
@@ -164,9 +197,10 @@ export function derive(today: string, events: DemoEvent[]): State {
         complete(`trade-task-${tr.changeId}`, e.at);
         const ready = taskById.get(`ready-${tr.changeId}`);
         if (ready && ready.status === 'open') ready.detail = `${tr.company} confirmed. Ready before drywall.`;
+        const trChange = tr.changeId ? changeById.get(tr.changeId) : undefined;
         const u: Update = {
           id: `u-${tr.id}`, homeId: tr.homeId, date: e.at, stage: 'Rough-ins',
-          note: 'Your shower upgrade is booked. The plumber moves the drain this week, before drywall.',
+          note: `Your ${(trChange?.title ?? 'install').toLowerCase()} is booked. ${tr.company} confirmed; work proceeds this week, before drywall.`,
           by: STAFF.pm, audience: 'homeowner',
         };
         updates.push(u);
@@ -214,11 +248,19 @@ export function derive(today: string, events: DemoEvent[]): State {
   return { today, homes, selections, changes, tasks, trades, updates, activity: activity.reverse(), closingMoves };
 }
 
+/** True once a later approved revision names this change in its `supersedes` link. */
+export const isSuperseded = (changeId: string, changes: Change[]) =>
+  changes.some((c) => c.supersedes === changeId && c.status === 'approved');
+
+/** The single current (non-superseded) approved change for each request thread on a home. */
+export const activeApprovedChanges = (homeId: string, changes: Change[]) =>
+  changes.filter((c) => c.homeId === homeId && c.status === 'approved' && !isSuperseded(c.id, changes));
+
 export const approvedExtras = (homeId: string, changes: Change[]) =>
-  changes.filter((c) => c.homeId === homeId && c.status === 'approved').reduce((n, c) => n + (c.price ?? 0), 0);
+  activeApprovedChanges(homeId, changes).reduce((n, c) => n + (c.price ?? 0), 0);
 
 export const approvedExtraCost = (homeId: string, changes: Change[]) =>
-  changes.filter((c) => c.homeId === homeId && c.status === 'approved').reduce((n, c) => n + (c.cost ?? 0), 0);
+  activeApprovedChanges(homeId, changes).reduce((n, c) => n + (c.cost ?? 0), 0);
 
 export const finalPrice = (h: Home, changes: Change[]) =>
   (h.status === 'presold' ? h.contractPrice : h.listPrice) + approvedExtras(h.id, changes);

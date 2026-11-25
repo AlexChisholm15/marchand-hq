@@ -9,7 +9,7 @@ import { finalPrice, homesFor } from '@/lib/engine';
 import { money, fmtDate } from '@/lib/format';
 import { STAGES } from '@/lib/seed';
 import { summarizeDraft } from '@/lib/quoteDraft';
-import type { Home, Task } from '@/lib/types';
+import type { DemoEvent, Home, Task } from '@/lib/types';
 import s from './studio.module.css';
 
 type Tab = 'decisions' | 'quote' | 'closeout' | 'issues';
@@ -42,7 +42,7 @@ function demoIssues(homeId:string):Issue[] {
 }
 
 export function Studio(){
-  const {state,role,setRole}=useStore();
+  const {state,role,setRole,dispatch}=useStore();
   const accessible=canOpenStudio(role);
   const homes=accessible?homesFor(state,role):[];
   const [tab,setTab]=useState<Tab>('decisions');
@@ -56,6 +56,13 @@ export function Studio(){
   const [issueTitle,setIssueTitle]=useState('');
   const [issuePriority,setIssuePriority]=useState<Issue['priority']>('Important');
   const [issueOwner,setIssueOwner]=useState<Issue['owner']>('Scott');
+  const [linkChoice,setLinkChoice]=useState('');
+  const [newTitle,setNewTitle]=useState('');
+  const [newRoom,setNewRoom]=useState('');
+  const [specFinish,setSpecFinish]=useState('');
+  const [specSize,setSpecSize]=useState('');
+  const [specLocation,setSpecLocation]=useState('');
+  const [designCost,setDesignCost]=useState('');
 
   useEffect(()=>{
     const next=new URLSearchParams(location.search).get('tab');
@@ -89,6 +96,28 @@ export function Studio(){
   const validLines=draft.lines;
   const total=draft.subtotal;
   const extraWithTax=draft.total;
+  const linkable=changeOrders.filter(c=>c.status==='requested'||c.status==='approved'||c.status==='declined');
+  const linkTarget=linkable.find(c=>c.id===linkChoice);
+  const designCostNum=Number(designCost.replace(/[^0-9.]/g,''))||0;
+  const specReady=specFinish.trim()&&specSize.trim()&&specLocation.trim();
+  const canSubmitQuote=role==='designer'&&!!home&&validLines.length>0&&!!specReady&&designCostNum>=0&&
+    (linkChoice==='new'?newTitle.trim().length>2:!!linkTarget);
+  const submitQuote=()=>{
+    if(!home||!canSubmitQuote)return;
+    const spec={finish:specFinish.trim(),size:specSize.trim(),location:specLocation.trim()};
+    const isRevision=linkChoice!=='new'&&linkTarget&&linkTarget.status!=='requested';
+    const id=linkChoice==='new'||isRevision?`c-${Date.now()}`:linkTarget!.id;
+    const events:DemoEvent[]=[];
+    if(linkChoice==='new'){
+      events.push({type:'change.requested',changeId:id,homeId:home.id,title:newTitle.trim(),detail:'',room:newRoom.trim()||'General',supersedes:null,at:state.today});
+    } else if(isRevision){
+      events.push({type:'change.requested',changeId:id,homeId:home.id,title:linkTarget!.title,detail:linkTarget!.detail,room:linkTarget!.room,supersedes:linkTarget!.id,at:state.today});
+    }
+    events.push({type:'change.priced',changeId:id,price:extraWithTax,cost:designCostNum,spec,lines:validLines,at:state.today});
+    dispatch(events);
+    setLines([]);setLinkChoice('');setNewTitle('');setNewRoom('');setSpecFinish('');setSpecSize('');setSpecLocation('');setDesignCost('');
+    setMessage('Priced revision sent to the buyer for approval');
+  };
   const pending=state.tasks.filter(t=>(t.role==='owner'||t.role==='coo')&&t.status==='open').sort((a,b)=>a.due.localeCompare(b.due));
   const delayed=state.homes.filter(h=>h.behindWeeks>0);
   const pendingChanges=state.changes.filter(c=>c.status==='requested'||c.status==='priced');
@@ -201,6 +230,30 @@ export function Studio(){
           <button type="button" disabled={!validLines.length} onClick={()=>void copy('SAMPLE QUOTE · Lot '+home.lot+'\n'+validLines.map(l=>l.label+' · '+l.qty+' × '+money(l.unit)).join('\n')+'\nDraft extras incl. HST '+money(extraWithTax)+'\nNOT APPROVED')}>Copy summary</button>
           <button type="button" onClick={()=>{setLines([]);setMessage('Draft lines cleared');}}>Clear draft</button>
         </div>
+        <div className={s.subhead}>Link to Changes, Selections and the PM</div>
+        {role!=='designer'?(
+          <p className={s.explain}>Switch to the designer role (More → View as) to price and link a quote to a change.</p>
+        ):(<>
+          <p className={s.explain}>Build the price here, enter the install spec once, and submit. The buyer, PM and office all read this same approved revision.</p>
+          <label className={s.full}>Link to<select aria-label="Link to a change" value={linkChoice} onChange={e=>setLinkChoice(e.target.value)}>
+            <option value="">Choose a change…</option>
+            <option value="new">+ New request</option>
+            {linkable.map(c=><option key={c.id} value={c.id}>{c.status==='requested'?'Price':'Revise'}: {c.title}{c.status!=='requested'?` (${c.status==='approved'?`CO #${c.number}`:'declined'})`:''}</option>)}
+          </select></label>
+          {linkChoice==='new'&&<>
+            <label className={s.full}>What's changing?<input value={newTitle} maxLength={140} placeholder="e.g. Tiled walk-in shower in ensuite" onChange={e=>setNewTitle(e.target.value)}/></label>
+            <label className={s.full}>Room<input value={newRoom} maxLength={60} placeholder="e.g. Primary ensuite" onChange={e=>setNewRoom(e.target.value)}/></label>
+          </>}
+          {linkChoice&&<div className={s.editLine}>
+            <label>Finish<input aria-label="Install finish" value={specFinish} maxLength={80} placeholder="e.g. Tile, linear drain" onChange={e=>setSpecFinish(e.target.value)}/></label>
+            <label>Size<input aria-label="Install size" value={specSize} maxLength={60} placeholder="e.g. 60×32 curbless pan" onChange={e=>setSpecSize(e.target.value)}/></label>
+            <label>Location<input aria-label="Install location" value={specLocation} maxLength={60} placeholder="e.g. Primary ensuite shower" onChange={e=>setSpecLocation(e.target.value)}/></label>
+          </div>}
+          {linkChoice&&<label className={s.full}>Cost to Marchand ($, internal — never shown to buyers)<input aria-label="Cost to Marchand" type="number" min="0" step="0.01" value={designCost} onChange={e=>setDesignCost(e.target.value)}/></label>}
+          <div className={s.controls}>
+            <button type="button" className={s.primary} disabled={!canSubmitQuote} onClick={submitQuote}>Submit priced revision to buyer</button>
+          </div>
+        </>)}
       </section>
       <aside className={s.card}>
         <div className={s.heading}><span>Estimate inspector</span><small>Auto-calculated</small></div>
