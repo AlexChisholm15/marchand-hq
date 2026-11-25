@@ -9,6 +9,7 @@ import s from './shell.module.css';
 import { Button, IconButton, List, Row, SearchBox, Sheet, Skeleton } from './ui';
 import { Logo } from './Logo';
 import { FloatingAsk } from './FloatingAsk';
+import { COLOURWAYS } from '@/lib/palettes';
 import { useStore } from '@/lib/store';
 import { navFor, roleById, ROLES, canSeeMoney, DEMO_HOME_ID, type NavId } from '@/lib/people';
 import { homesFor, STORY } from '@/lib/engine';
@@ -153,20 +154,7 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
           {sub && <p className={s.topSub}>{sub}</p>}
         </div>
         <div className={s.topActions}>
-          <ColourwayPicker palette={palette} setPalette={setPalette}>
-              <option value="cobalt">Cobalt</option>
-              <option value="copper">Copper</option>
-              <option value="forest">Forest</option>
-              <option value="plum">Plum</option>
-              <option value="slate">Slate</option>
-              <option value="rose">Rose</option>
-              <option value="marchand63">Marchand 63</option>
-              <option value="panther">Panther Red</option>
-              <option value="architect">Architect</option>
-              <option value="blackgold">Black &amp; Gold</option>
-              <option value="coastal">Coastal</option>
-              <option value="city">City</option>
-          </ColourwayPicker>
+          <ColourwayPicker palette={palette} setPalette={setPalette} />
           <IconButton label="Search homes and tasks" onClick={openSearch}>
             <Search size={20} />
           </IconButton>
@@ -190,19 +178,16 @@ export function Page({ title, sub, back, children }: { title: string; sub?: stri
 }
 
 // Keep the original option values and store action as the single switching path.
-function ColourwayPicker({ palette, setPalette, children }: {
+function ColourwayPicker({ palette, setPalette }: {
   palette: ReturnType<typeof useStore>['palette'];
   setPalette: ReturnType<typeof useStore>['setPalette'];
-  children: ReactNode;
 }) {
   const trigger = useRef<HTMLButtonElement>(null);
   const menu = useRef<HTMLDivElement>(null);
   const id = useId();
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0, maxHeight: 400 });
-  const [label, setLabel] = useState('');
-  const options = useRef<HTMLSelectElement>(null);
-  useEffect(() => { setLabel(options.current?.selectedOptions[0]?.text ?? palette); }, [palette]);
+  const label = COLOURWAYS.find(option => option.id === palette)?.label ?? palette;
   useLayoutEffect(() => {
     if (!open) return;
     const place = () => {
@@ -226,7 +211,6 @@ function ColourwayPicker({ palette, setPalette, children }: {
   }, [open]);
   const close = () => { setOpen(false); trigger.current?.focus(); };
   return <>
-    <select hidden aria-hidden ref={options} value={palette} onChange={e => setPalette(e.target.value as typeof palette)}>{children}</select>
     <button ref={trigger} type="button" className={s.palettePicker} aria-label={`Colourway: ${label || palette}`} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? id : undefined}
       onClick={() => setOpen(!open)} onKeyDown={e => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); setOpen(true); } }}>
       <span className={s.paletteDot} aria-hidden /><span className={s.paletteLabel}>{label || palette}</span><ChevronDown size={14} aria-hidden />
@@ -249,9 +233,9 @@ function ColourwayPicker({ palette, setPalette, children }: {
         } else return;
         if (next >= 0) { e.preventDefault(); items[next].focus(); }
       }}>
-      {Array.from(options.current?.options ?? []).map(option => <button type="button" key={option.value} role="option" aria-selected={option.value === palette} tabIndex={-1} className={s.paletteOption}
-        onClick={() => { setPalette(option.value as typeof palette); close(); }}>
-        <span>{option.text}</span><Check size={14} aria-hidden style={{ visibility: option.value === palette ? 'visible' : 'hidden' }} />
+      {COLOURWAYS.map(option => <button type="button" key={option.id} role="option" aria-selected={option.id === palette} tabIndex={-1} className={s.paletteOption}
+        onClick={() => { setPalette(option.id); close(); }}>
+        <span>{option.label}</span><Check size={14} aria-hidden style={{ visibility: option.id === palette ? 'visible' : 'hidden' }} />
       </button>)}
     </div>, document.body)}
   </>;
